@@ -1,0 +1,35 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked"
+    }
+}
+
+ext {
+    compileSdkVersion = 25
+    targetSdkVersion = compileSdkVersion
+    minSdkVersion = 14
+
+    buildToolsVersion = '25.0.2'
+
+    supportLibVersion = '25.1.0'
+    junitVersion = '4.12'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.3'
+    distributionType = 'ALL'
+}

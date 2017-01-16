@@ -1,0 +1,60 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.github.ben-manes.versions'
+apply from: "$rootDir/gradle/gradle-quality.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        applicationId "com.evernote.android.state.demo"
+
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+
+        versionName project.VERSION_NAME
+        versionCode Integer.parseInt(project.VERSION_CODE)
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles 'proguard.cfg'
+        }
+
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard.cfg'
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    testOptions.unitTests {
+        returnDefaultValues = true
+        all {
+            testLogging {
+                events 'failed', 'standardOut', 'standardError'
+            }
+        }
+    }
+
+    lintOptions {
+        abortOnError true
+    }
+}
+
+dependencies {
+    compile project(':library')
+    annotationProcessor project(':processor')
+    compile "com.android.support:appcompat-v7:$supportLibVersion"
+
+    testCompile "junit:junit:$junitVersion"
+    testCompile 'org.assertj:assertj-core:1.7.1'
+    testCompile 'org.robolectric:robolectric:3.2.2'
+    testCompile 'org.robolectric:android-all:6.0.0_r1-robolectric-0'
+}
