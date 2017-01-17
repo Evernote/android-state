@@ -142,7 +142,7 @@ This library comes with a ProGuard config. No further steps are required, but al
 
 ## [Icepick](https://github.com/frankiesardo/icepick)
 
-This library is based on [Icepick](https://github.com/frankiesardo/icepick), a great library from Frankie Sardo. However, Icepick misses some important features for us: it [doesn't support properties](https://github.com/frankiesardo/icepick/issues/81) which is a [bummer for Kotlin](https://github.com/frankiesardo/icepick/issues/47). Also, Icepick does not support private fields which may break encapsulation. A tool shouldn't force you into this direction.
+This library is based on [Icepick](https://github.com/frankiesardo/icepick), a great library from Frankie Sardo. However, Icepick is missing some features important to us: it [doesn't support properties](https://github.com/frankiesardo/icepick/issues/81) which is a [bummer for Kotlin](https://github.com/frankiesardo/icepick/issues/47). Also, Icepick does not support private fields which may break encapsulation. A tool shouldn't force you into this direction.
 
 Since Icepick is implemented in Clojure, we decided that's it's better for us to rewrite the annotation processor in Java. Unfortunately, that makes it hard to push our features into Icepick itself. That's why we decided to fork the project.
 
