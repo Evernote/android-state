@@ -78,6 +78,27 @@ public class TestBundling {
         testView.onRestoreInstanceState(state);
 
         assertThat(testView.mState).isEqualTo(0);
+
+        TestView.InnerView innerView = new TestView.InnerView(RuntimeEnvironment.application);
+        state = innerView.onSaveInstanceState();
+
+        innerView.mState = 5;
+        innerView.mStateInner = 6;
+        innerView.onRestoreInstanceState(state);
+
+        assertThat(innerView.mState).isEqualTo(0);
+        assertThat(innerView.mStateInner).isEqualTo(0);
+
+        innerView.mState = 5;
+        innerView.mStateInner = 6;
+        state = innerView.onSaveInstanceState();
+
+        innerView.mState = 0;
+        innerView.mStateInner = 0;
+        innerView.onRestoreInstanceState(state);
+
+        assertThat(innerView.mState).isEqualTo(5);
+        assertThat(innerView.mStateInner).isEqualTo(6);
     }
 
     @Test
@@ -163,6 +184,41 @@ public class TestBundling {
         assertThat(object.getInt()).isEqualTo(5);
         assertThat(object.getIntegerObj()).isNotNull().isEqualTo(6);
         assertThat(object.getParcelableArrayList()).isNotNull().isNotEmpty().containsExactly(new TestTypes.ParcelableImpl(7));
+    }
+
+    @Test
+    public void testInheritance() {
+        TestInheritance.InheritanceLevel2 level2 = createSavedInstance(TestInheritance.InheritanceLevel2.class);
+        level2.mValue1 = 4;
+        level2.mValue2 = 5;
+
+        StateSaver.restoreInstanceState(level2, mBundle);
+        assertThat(level2.mValue1).isEqualTo(0);
+        assertThat(level2.mValue2).isEqualTo(0);
+
+        level2.mValue1 = 4;
+        level2.mValue2 = 5;
+
+        StateSaver.saveInstanceState(level2, mBundle);
+        level2.mValue1 = 0;
+        level2.mValue2 = 0;
+
+        StateSaver.restoreInstanceState(level2, mBundle);
+        assertThat(level2.mValue1).isEqualTo(4);
+        assertThat(level2.mValue2).isEqualTo(5);
+
+        TestInheritance.InheritanceLevel1 level1 = createSavedInstance(TestInheritance.InheritanceLevel1.class);
+        level1.mValue1 = 4;
+
+        StateSaver.restoreInstanceState(level1, mBundle);
+        assertThat(level1.mValue1).isEqualTo(0);
+        level1.mValue1 = 4;
+
+        StateSaver.saveInstanceState(level1, mBundle);
+        level1.mValue1 = 0;
+
+        StateSaver.restoreInstanceState(level1, mBundle);
+        assertThat(level1.mValue1).isEqualTo(4);
     }
 
     private <T> T createSavedInstance(Class<T> clazz) {

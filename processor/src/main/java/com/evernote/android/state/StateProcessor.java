@@ -103,6 +103,7 @@ public class StateProcessor extends AbstractProcessor {
     };
 
     private static final String STATE_CLASS_NAME = State.class.getName();
+    private static final String OBJECT_CLASS_NAME = Object.class.getName();
 
     private Types mTypeUtils;
     private Elements mElementUtils;
@@ -171,7 +172,9 @@ public class StateProcessor extends AbstractProcessor {
         }
 
         Map<Element, Set<Element>> classes = getClassElements(annotatedFields);
-        for (Element classElement : classes.keySet()) {
+        Set<Element> allClassElements = classes.keySet();
+
+        for (Element classElement : allClassElements) {
             Element privateClass = getPrivateClass(classElement);
             if (privateClass != null) {
                 mMessager.printMessage(Diagnostic.Kind.ERROR, "Class must not be private", privateClass);
@@ -179,7 +182,7 @@ public class StateProcessor extends AbstractProcessor {
             }
         }
 
-        for (Element classElement : classes.keySet()) {
+        for (Element classElement : allClassElements) {
             final List<? extends Element> fields = sorted(classes.get(classElement));
             final Element packageElement = findElement(classElement, ElementKind.PACKAGE);
 
@@ -188,6 +191,14 @@ public class StateProcessor extends AbstractProcessor {
             final boolean isView = isAssignable(classElement, View.class);
 
             final TypeVariableName genericType = TypeVariableName.get("T", TypeName.get(classElement.asType()));
+
+            final TypeName superTypeName;
+            final TypeMirror superType = getSuperType(classElement.asType(), allClassElements);
+            if (superType == null) {
+                superTypeName = ParameterizedTypeName.get(ClassName.get(isView ? Injector.View.class : Injector.Object.class), genericType);
+            } else {
+                superTypeName = ParameterizedTypeName.get(ClassName.bestGuess(superType.toString() + StateSaver.SUFFIX), genericType);
+            }
 
             MethodSpec.Builder saveMethodBuilder = MethodSpec.methodBuilder("save")
                     .addAnnotation(Override.class)
@@ -212,18 +223,24 @@ public class StateProcessor extends AbstractProcessor {
                     .addParameter(genericType, "target");
 
             if (isView) {
-                saveMethodBuilder = saveMethodBuilder
-                        .returns(Parcelable.class)
-                        .addParameter(Parcelable.class, "p")
-                        .addStatement("$T state = HELPER.putParent(super.save(target, p))", Bundle.class);
+                saveMethodBuilder = saveMethodBuilder.returns(Parcelable.class).addParameter(Parcelable.class, "p");
+                restoreMethodBuilder = restoreMethodBuilder.returns(Parcelable.class).addParameter(Parcelable.class, "p");
 
-                restoreMethodBuilder = restoreMethodBuilder
-                        .returns(Parcelable.class)
-                        .addParameter(Parcelable.class, "p")
-                        .addStatement("$T state = ($T) p", Bundle.class, Bundle.class);
+                if (superType != null) {
+                    saveMethodBuilder = saveMethodBuilder.addStatement("$T state = HELPER.putParent(super.save(target, p))", Bundle.class);
+                } else {
+                    saveMethodBuilder = saveMethodBuilder.addStatement("$T state = HELPER.putParent(p)", Bundle.class);
+                }
+                restoreMethodBuilder = restoreMethodBuilder.addStatement("$T state = ($T) p", Bundle.class, Bundle.class);
+
             } else {
                 saveMethodBuilder = saveMethodBuilder.returns(void.class).addParameter(Bundle.class, "state");
                 restoreMethodBuilder = restoreMethodBuilder.returns(void.class).addParameter(Bundle.class, "state");
+
+                if (superType != null) {
+                    saveMethodBuilder = saveMethodBuilder.addStatement("super.save(target, state)");
+                    restoreMethodBuilder = restoreMethodBuilder.addStatement("super.restore(target, state)");
+                }
             }
 
             CodeBlock.Builder staticInitBlock = CodeBlock.builder();
@@ -300,15 +317,19 @@ public class StateProcessor extends AbstractProcessor {
 
             if (isView) {
                 saveMethodBuilder = saveMethodBuilder.addStatement("return state");
-                restoreMethodBuilder = restoreMethodBuilder.addStatement("return super.restore(target, HELPER.getParent(state))");
+                if (superType != null) {
+                    restoreMethodBuilder = restoreMethodBuilder.addStatement("return super.restore(target, HELPER.getParent(state))");
+                } else {
+                    restoreMethodBuilder = restoreMethodBuilder.addStatement("return HELPER.getParent(state)");
+                }
             }
 
             TypeName bundlerType = ParameterizedTypeName.get(ClassName.get(Bundler.class), WildcardTypeName.subtypeOf(Object.class));
             TypeName bundlerMap = ParameterizedTypeName.get(ClassName.get(HashMap.class), ClassName.get(String.class), bundlerType);
 
             TypeSpec classBuilder = TypeSpec.classBuilder(className + StateSaver.SUFFIX)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .superclass(ParameterizedTypeName.get(ClassName.get(isView ? Injector.View.class : Injector.Object.class), genericType))
+                    .addModifiers(Modifier.PUBLIC)
+                    .superclass(superTypeName)
                     .addTypeVariable(genericType)
                     .addField(
                             FieldSpec.builder(bundlerMap, "BUNDLERS")
@@ -581,5 +602,20 @@ public class StateProcessor extends AbstractProcessor {
         List<Element> result = new ArrayList<>(collection);
         Collections.sort(result, COMPARATOR);
         return result;
+    }
+
+    private TypeMirror getSuperType(TypeMirror classElement, Set<Element> allClassElements) {
+        List<? extends TypeMirror> typeMirrors = mTypeUtils.directSupertypes(classElement);
+        while (typeMirrors != null && !typeMirrors.isEmpty()) {
+            TypeMirror superClass = typeMirrors.get(0); // interfaces are at the end
+            if (OBJECT_CLASS_NAME.equals(superClass.toString())) {
+                break;
+            }
+            if (allClassElements.contains(mTypeUtils.asElement(superClass))) {
+                return superClass;
+            }
+            typeMirrors = mTypeUtils.directSupertypes(superClass);
+        }
+        return null;
     }
 }

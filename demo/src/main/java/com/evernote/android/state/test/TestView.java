@@ -25,4 +25,24 @@ public class TestView extends View {
     protected void onRestoreInstanceState(Parcelable state) {
         super.onRestoreInstanceState(StateSaver.restoreInstanceState(this, state));
     }
+
+    public static class InnerView extends TestView {
+
+        @State
+        public int mStateInner;
+
+        public InnerView(Context context) {
+            super(context);
+        }
+
+        @Override
+        protected Parcelable onSaveInstanceState() {
+            return StateSaver.saveInstanceState(this, super.onSaveInstanceState());
+        }
+
+        @Override
+        protected void onRestoreInstanceState(Parcelable state) {
+            super.onRestoreInstanceState(StateSaver.restoreInstanceState(this, state));
+        }
+    }
 }

@@ -29,14 +29,19 @@ public class Injector {
     public abstract static class View<T> extends Injector {
 
         /*package*/ static final View<?> DEFAULT = new View<java.lang.Object>() {
+            @Override
+            public Parcelable restore(java.lang.Object target, Parcelable state) {
+                return state;
+            }
+
+            @Override
+            public Parcelable save(java.lang.Object target, Parcelable state) {
+                return state;
+            }
         };
 
-        public Parcelable restore(T target, Parcelable state) {
-            return state;
-        }
+        public abstract Parcelable restore(T target, Parcelable state);
 
-        public Parcelable save(T target, Parcelable state) {
-            return state;
-        }
+        public abstract Parcelable save(T target, Parcelable state);
     }
 }
