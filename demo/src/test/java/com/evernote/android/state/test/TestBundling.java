@@ -84,24 +84,35 @@ public class TestBundling {
     public void testBundler() {
         TestBundler object = createSavedInstance(TestBundler.class);
         object.setData2(new TestBundler.Data());
+        object.setDataRefl(new TestBundler.Data());
 
         StateSaver.restoreInstanceState(object, mBundle);
         assertThat(object.getData2()).isNull();
+        assertThat(object.getDataRefl()).isNull();
 
         TestBundler.Data data = new TestBundler.Data();
         data.int1 = 1;
         data.int2 = 2;
         object.setData2(data);
+        data = new TestBundler.Data();
+        data.int1 = 3;
+        data.int2 = 4;
+        object.setDataRefl(data);
 
         StateSaver.saveInstanceState(object, mBundle);
 
         object.setData2(null);
+        object.setDataRefl(null);
         assertThat(object.getData2()).isNull();
+        assertThat(object.getDataRefl()).isNull();
 
         StateSaver.restoreInstanceState(object, mBundle);
         assertThat(object.getData2()).isNotNull();
         assertThat(object.getData2().int1).isEqualTo(1);
         assertThat(object.getData2().int2).isEqualTo(2);
+        assertThat(object.getDataRefl()).isNotNull();
+        assertThat(object.getDataRefl().int1).isEqualTo(3);
+        assertThat(object.getDataRefl().int2).isEqualTo(4);
     }
 
     @Test

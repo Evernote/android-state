@@ -12,12 +12,23 @@ public class TestBundler {
     @State(MyBundler.class)
     private Data mData2;
 
+    @State(value = MyBundler.class, reflection = true)
+    private Data mDataReflOtherName;
+
     public Data getData2() {
         return mData2;
     }
 
     public void setData2(Data data2) {
         mData2 = data2;
+    }
+
+    public Data getDataRefl() {
+        return mDataReflOtherName;
+    }
+
+    public void setDataRefl(Data data) {
+        mDataReflOtherName = data;
     }
 
     public static final class Data {

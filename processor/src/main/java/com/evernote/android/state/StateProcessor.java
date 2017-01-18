@@ -229,31 +229,25 @@ public class StateProcessor extends AbstractProcessor {
             CodeBlock.Builder staticInitBlock = CodeBlock.builder();
 
             for (Element field : fields) {
-                String fieldType = field.asType().toString();
-                String mapping = TYPE_MAPPING.get(fieldType);
-                switch (getFieldType(field)) {
+                String fieldTypeString = field.asType().toString();
+                String mapping = TYPE_MAPPING.get(fieldTypeString);
+
+                FieldType fieldType = getFieldType(field);
+                String fieldName = fieldType.getFieldName(field);
+
+                BundlerWrapper bundler = bundlers.get(field);
+                if (bundler != null) {
+                    staticInitBlock = staticInitBlock.addStatement("BUNDLERS.put($S, new $T())", fieldName, bundler.mBundlerName);
+                    mapping = "WithBundler";
+                }
+
+                switch (fieldType) {
                     case FIELD:
-                        String fieldName = field.getSimpleName().toString();
-
-                        BundlerWrapper bundler = bundlers.get(field);
-                        if (bundler != null) {
-                            staticInitBlock = staticInitBlock.addStatement("BUNDLERS.put($S, new $T())", fieldName, bundler.mBundlerName);
-                            mapping = "WithBundler";
-                        }
-
                         saveMethodBuilder = saveMethodBuilder.addStatement("HELPER.put$N(state, $S, target.$N)", mapping, fieldName, fieldName);
                         restoreMethodBuilder = restoreMethodBuilder.addStatement("target.$N = HELPER.get$N(state, $S)", fieldName, mapping, fieldName);
                         break;
 
                     case PROPERTY:
-                        fieldName = getPropertyFieldName(field);
-
-                        bundler = bundlers.get(field);
-                        if (bundler != null) {
-                            staticInitBlock = staticInitBlock.addStatement("BUNDLERS.put($S, new $T())", fieldName, bundler.mBundlerName);
-                            mapping = "WithBundler";
-                        }
-
                         saveMethodBuilder.addStatement("HELPER.put$N(state, $S, target.get$N())", mapping, fieldName, fieldName);
                         if (bundler != null) {
                             restoreMethodBuilder = restoreMethodBuilder.addStatement("target.set$N(HELPER.<$T>get$N(state, $S))", fieldName,
@@ -264,7 +258,6 @@ public class StateProcessor extends AbstractProcessor {
                         break;
 
                     case FIELD_REFLECTION:
-                        fieldName = field.getSimpleName().toString();
                         String reflectionMapping = isPrimitiveMapping(mapping) ? mapping : "";
 
                         saveMethodBuilder = saveMethodBuilder
@@ -274,7 +267,7 @@ public class StateProcessor extends AbstractProcessor {
                                 .beginControlFlow("if (!accessible)")
                                 .addStatement("field.setAccessible(true)")
                                 .endControlFlow()
-                                .addStatement("HELPER.put$N(state, $S, ($N) field.get$N(target))", mapping, fieldName, fieldType, reflectionMapping)
+                                .addStatement("HELPER.put$N(state, $S, ($N) field.get$N(target))", mapping, fieldName, fieldTypeString, reflectionMapping)
                                 .beginControlFlow("if (!accessible)")
                                 .addStatement("field.setAccessible(false)")
                                 .endControlFlow()
@@ -388,7 +381,7 @@ public class StateProcessor extends AbstractProcessor {
         return className;
     }
 
-    private String getPropertyFieldName(Element field) {
+    private static String getPropertyFieldName(Element field) {
         String fieldName = field.getSimpleName().toString();
         if (fieldName.length() >= 2 && fieldName.startsWith("m") && Character.isUpperCase(fieldName.charAt(1))) {
             fieldName = fieldName.substring(1);
@@ -440,7 +433,20 @@ public class StateProcessor extends AbstractProcessor {
     }
 
     private enum FieldType {
-        FIELD, FIELD_REFLECTION, PROPERTY, NOT_SUPPORTED
+        FIELD, FIELD_REFLECTION, PROPERTY, NOT_SUPPORTED;
+
+        public String getFieldName(Element field) {
+            switch (this) {
+                case FIELD:
+                case FIELD_REFLECTION:
+                    return field.getSimpleName().toString();
+                case PROPERTY:
+                    return getPropertyFieldName(field);
+                case NOT_SUPPORTED:
+                default:
+                    return null;
+            }
+        }
     }
 
     private BundlerWrapper getBundlerWrapper(Element field) {
