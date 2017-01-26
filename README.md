@@ -4,12 +4,12 @@ A utility library for Android to save objects in a `Bundle` without any boilerpl
 
 ## Download
 
-Download [the latest version](http://search.maven.org/#search|gav|1|g:"com.evernote"%20AND%20a:"android-state") or grab via Gradle:
+Download the latest [library](https://search.maven.org/#search%7Cga%7C1%7Ca%3A%22android-state%22) and [processor](https://search.maven.org/#search%7Cga%7C1%7Ca%3A%22android-state-processor%22) or grab via Gradle:
 
 ```groovy
 dependencies {
-    compile 'com.evernote:android-state:0.0.1'
-    annotationProcessor 'com.evernote:android-state-processor:0.0.1'
+    compile 'com.evernote:android-state:1.0.0'
+    annotationProcessor 'com.evernote:android-state-processor:1.0.0'
 }
 ```
 
