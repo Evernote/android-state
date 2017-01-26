@@ -172,6 +172,34 @@ public class TestBundling {
     }
 
     @Test
+    public void testTypesProperty() {
+        TestTypesProperty object = createSavedInstance(TestTypesProperty.class);
+        object.setBooleanObj(Boolean.FALSE);
+
+        StateSaver.restoreInstanceState(object, mBundle);
+        assertThat(object.getBooleanObj()).isNull();
+
+        object.setInt(5);
+        object.setIntegerObj(6);
+        object.setParcelableImplExtension(new TestTypesProperty.ParcelableImplExtension(7, 8));
+        object.setParcelableArrayList(new ArrayList<TestTypes.ParcelableImpl>() {{
+            add(new TestTypes.ParcelableImpl(9));
+        }});
+
+        StateSaver.saveInstanceState(object, mBundle);
+        object.setInt(0);
+        object.setIntegerObj(0);
+        object.setParcelableImplExtension(null);
+        object.setParcelableArrayList(null);
+
+        StateSaver.restoreInstanceState(object, mBundle);
+        assertThat(object.getInt()).isEqualTo(5);
+        assertThat(object.getIntegerObj()).isNotNull().isEqualTo(6);
+        assertThat(object.getParcelableImplExtension()).isNotNull().isEqualTo(new TestTypesProperty.ParcelableImplExtension(7, 8));
+        assertThat(object.getParcelableArrayList()).isNotNull().isNotEmpty().containsExactly(new TestTypes.ParcelableImpl(9));
+    }
+
+    @Test
     public void testTypesReflection() {
         TestTypesReflection object = createSavedInstance(TestTypesReflection.class);
         object.setIntegerObj(5);

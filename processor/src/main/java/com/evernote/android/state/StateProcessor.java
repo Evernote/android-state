@@ -114,6 +114,23 @@ public class StateProcessor extends AbstractProcessor {
 
     private static final String STATE_CLASS_NAME = State.class.getName();
     private static final String OBJECT_CLASS_NAME = Object.class.getName();
+    private static final String PARCELABLE_CLASS_NAME = Parcelable.class.getName();
+    private static final String SERIALIZABLE_CLASS_NAME = Serializable.class.getName();
+    private static final String ARRAY_LIST_CLASS_NAME = ArrayList.class.getName();
+    private static final String SPARSE_ARRAY_CLASS_NAME = SparseArray.class.getName();
+
+    private static final Set<String> IGNORED_TYPE_DECLARATIONS = Collections.unmodifiableSet(new HashSet<String>() {{
+        add(Bundle.class.getName());
+        add(String.class.getName());
+        add(Byte.class.getName());
+        add(Short.class.getName());
+        add(Integer.class.getName());
+        add(Long.class.getName());
+        add(Float.class.getName());
+        add(Double.class.getName());
+        add(Character.class.getName());
+        add(Boolean.class.getName());
+    }});
 
     private Types mTypeUtils;
     private Elements mElementUtils;
@@ -280,7 +297,14 @@ public class StateProcessor extends AbstractProcessor {
                             restoreMethodBuilder = restoreMethodBuilder.addStatement("target.set$N(HELPER.<$T>get$N(state, $S))", fieldName,
                                     bundler.mGenericName, mapping, fieldName);
                         } else {
-                            restoreMethodBuilder = restoreMethodBuilder.addStatement("target.set$N(HELPER.get$N(state, $S))", fieldName, mapping, fieldName);
+                            TypeMirror insertedType = getInsertedType(field, true);
+                            if (insertedType != null) {
+                                restoreMethodBuilder = restoreMethodBuilder.addStatement("target.set$N(HELPER.<$T>get$N(state, $S))",
+                                        fieldName, ClassName.get(insertedType), mapping, fieldName);
+                            } else {
+                                restoreMethodBuilder = restoreMethodBuilder.addStatement("target.set$N(HELPER.get$N(state, $S))",
+                                        fieldName, mapping, fieldName);
+                            }
                         }
                         break;
 
@@ -625,6 +649,49 @@ public class StateProcessor extends AbstractProcessor {
                 return superClass;
             }
             typeMirrors = mTypeUtils.directSupertypes(superClass);
+        }
+        return null;
+    }
+
+    private TypeMirror getInsertedType(Element field, boolean checkIgnoredTypes) {
+        if (field == null) {
+            return null;
+        }
+        TypeMirror fieldType = field.asType();
+
+        if (fieldType instanceof DeclaredType) {
+            // generic type, return the generic value
+            List<? extends TypeMirror> typeArguments = ((DeclaredType) fieldType).getTypeArguments();
+            if (typeArguments != null && !typeArguments.isEmpty()) {
+                return getInsertedType(mElementUtils.getTypeElement(typeArguments.get(0).toString()), false);
+            }
+        }
+
+        TypeElement classElement = mElementUtils.getTypeElement(fieldType.toString());
+        if (classElement == null) {
+            return null;
+        }
+
+        if (checkIgnoredTypes && IGNORED_TYPE_DECLARATIONS.contains(classElement.toString())) {
+            return null;
+        }
+
+        List<? extends TypeMirror> typeMirrors = mTypeUtils.directSupertypes(classElement.asType());
+        if (typeMirrors != null) {
+            for (TypeMirror superType : typeMirrors) {
+                String superTypeString = superType.toString();
+                if (PARCELABLE_CLASS_NAME.equals(superTypeString)) {
+                    return fieldType;
+                }
+                if (SERIALIZABLE_CLASS_NAME.equals(superTypeString)) {
+                    return fieldType;
+                }
+                TypeMirror result = getInsertedType(mElementUtils.getTypeElement(superTypeString), checkIgnoredTypes);
+                if (result != null) {
+                    // always return the passed in type and not any super type
+                    return fieldType;
+                }
+            }
         }
         return null;
     }
