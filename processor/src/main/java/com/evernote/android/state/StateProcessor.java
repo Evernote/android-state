@@ -291,8 +291,11 @@ public class StateProcessor extends AbstractProcessor {
                         restoreMethodBuilder = restoreMethodBuilder.addStatement("target.$N = HELPER.get$N(state, $S)", fieldName, mapping, fieldName);
                         break;
 
+                    case BOOLEAN_PROPERTY:
                     case PROPERTY:
-                        saveMethodBuilder.addStatement("HELPER.put$N(state, $S, target.get$N())", mapping, fieldName, fieldName);
+                        saveMethodBuilder.addStatement("HELPER.put$N(state, $S, target.$N$N())", mapping, fieldName,
+                                fieldType == FieldType.BOOLEAN_PROPERTY ? "is" : "get", fieldName);
+
                         if (bundler != null) {
                             restoreMethodBuilder = restoreMethodBuilder.addStatement("target.set$N(HELPER.<$T>get$N(state, $S))", fieldName,
                                     bundler.mGenericName, mapping, fieldName);
@@ -455,10 +458,12 @@ public class StateProcessor extends AbstractProcessor {
 
         String fieldName = getPropertyFieldName(field);
         String getterName = "get" + fieldName;
+        String isGetterName = "is" + fieldName;
         String setterName = "set" + fieldName;
 
         List<? extends Element> elements = field.getEnclosingElement().getEnclosedElements();
         boolean hasGetter = false;
+        boolean hasIsGetter = false;
         boolean hasSetter = false;
 
         for (Element element : elements) {
@@ -472,6 +477,13 @@ public class StateProcessor extends AbstractProcessor {
                     break;
                 }
             }
+            if (!hasIsGetter && isGetterName.equals(elementName) && !element.getModifiers().contains(Modifier.PRIVATE)) {
+                hasIsGetter = true;
+                if (hasSetter) {
+                    break;
+                }
+            }
+
             if (!hasSetter && setterName.equals(elementName) && !element.getModifiers().contains(Modifier.PRIVATE)) {
                 hasSetter = true;
                 if (hasGetter) {
@@ -480,7 +492,9 @@ public class StateProcessor extends AbstractProcessor {
             }
         }
 
-        if (hasGetter && hasSetter) {
+        if (hasIsGetter && hasSetter) {
+            return FieldType.BOOLEAN_PROPERTY;
+        } else if (hasGetter && hasSetter) {
             return FieldType.PROPERTY;
         } else {
             return FieldType.NOT_SUPPORTED;
@@ -488,7 +502,7 @@ public class StateProcessor extends AbstractProcessor {
     }
 
     private enum FieldType {
-        FIELD, FIELD_REFLECTION, PROPERTY, NOT_SUPPORTED;
+        FIELD, FIELD_REFLECTION, PROPERTY, BOOLEAN_PROPERTY, NOT_SUPPORTED;
 
         public String getFieldName(Element field) {
             switch (this) {
@@ -496,6 +510,7 @@ public class StateProcessor extends AbstractProcessor {
                 case FIELD_REFLECTION:
                     return field.getSimpleName().toString();
                 case PROPERTY:
+                case BOOLEAN_PROPERTY:
                     return getPropertyFieldName(field);
                 case NOT_SUPPORTED:
                 default:

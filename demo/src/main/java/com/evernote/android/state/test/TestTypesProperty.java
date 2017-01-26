@@ -87,7 +87,7 @@ public class TestTypesProperty {
     @State
     private SparseArray<ParcelableImplExtension> mParcelableSparseArray;
 
-    public boolean getBoolean() {
+    public boolean isBoolean() {
         return mBoolean;
     }
 
