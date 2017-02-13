@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 apply plugin: 'com.github.ben-manes.versions'
 apply from: "$rootDir/gradle/gradle-quality.gradle"
 
@@ -34,6 +35,18 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
+    sourceSets {
+        main {
+            java.srcDirs += 'src/main/kotlin'
+        }
+        test {
+            java.srcDirs += 'src/test/kotlin'
+        }
+        androidTest {
+            java.srcDirs += 'src/androidTest/kotlin'
+        }
+    }
+
     testOptions.unitTests {
         returnDefaultValues = true
         all {
@@ -50,11 +63,15 @@ android {
 
 dependencies {
     compile project(':library')
-    annotationProcessor project(':processor')
+    kapt project(':processor')
     compile "com.android.support:appcompat-v7:$supportLibVersion"
+
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
     testCompile "junit:junit:$junitVersion"
     testCompile 'org.assertj:assertj-core:1.7.1'
     testCompile 'org.robolectric:robolectric:3.2.2'
     testCompile 'org.robolectric:android-all:6.0.0_r1-robolectric-0'
+    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
 }
