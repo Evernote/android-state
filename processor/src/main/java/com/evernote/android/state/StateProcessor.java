@@ -213,7 +213,13 @@ public class StateProcessor extends AbstractProcessor {
             final List<? extends Element> fields = sorted(classes.get(classElement));
             final Element packageElement = findElement(classElement, ElementKind.PACKAGE);
 
-            final String packageName = packageElement.asType().toString();
+            String packageName = packageElement.asType().toString();
+            if ("package".equals(packageName)) {
+                // that's a weird bug in Jack where the package name is always "package"
+                String packageJackCompiler = findPackageJackCompiler(classElement);
+                packageName = packageJackCompiler == null ? packageName : packageJackCompiler;
+            }
+
             final String className = getClassName(classElement);
             final boolean isView = isAssignable(classElement, View.class);
 
@@ -417,6 +423,21 @@ public class StateProcessor extends AbstractProcessor {
             return element;
         }
         return element.getKind() == kind ? element : findElement(enclosingElement, kind);
+    }
+
+    private String findPackageJackCompiler(Element element) {
+        Element enclosingElement = element.getEnclosingElement();
+        if (enclosingElement != null && enclosingElement.getKind() == ElementKind.PACKAGE && element.getKind() == ElementKind.CLASS) {
+            String className = element.asType().toString();
+            int index = className.lastIndexOf('.');
+            if (index <= 0) {
+                mMessager.printMessage(Diagnostic.Kind.WARNING, "Couldn't find package name with Jack compiler");
+                return null;
+            }
+            return className.substring(0, index);
+        }
+
+        return enclosingElement != null ? findPackageJackCompiler(enclosingElement) : null;
     }
 
     private Element getPrivateClass(Element classElement) {

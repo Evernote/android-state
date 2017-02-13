@@ -1,6 +1,7 @@
 ## 1.0.2 (2017-02-13)
 
 * Provide some `Bundler` implementations for lists, see #4
+* Add a workaround for the Jack compiler where the package name is always "package", may fix #5
 
 ## 1.0.1 (2017-01-27)
 
