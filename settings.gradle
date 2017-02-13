@@ -1,1 +1,1 @@
-include ':demo', ':library', ':processor'
+include ':demo', ':library', ':processor', ':demo-java-8'
