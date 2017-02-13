@@ -542,7 +542,26 @@ public class StateProcessor extends AbstractProcessor {
                             if (isAssignable(mTypeUtils.erasure(anInterface), Bundler.class)) {
                                 List<? extends TypeMirror> typeArguments = ((DeclaredType) anInterface).getTypeArguments();
                                 if (typeArguments != null && typeArguments.size() >= 1) {
-                                    genericName = ClassName.get(typeArguments.get(0));
+                                    TypeMirror genericTypeMirror = typeArguments.get(0);
+                                    String genericString = genericTypeMirror.toString();
+
+                                    // this check is necessary for returned types like: List<? extends String> -> remove "? extends"
+                                    if (genericString.contains("<? extends ")) {
+                                        String innerType = genericString.substring(genericString.indexOf("<? extends ") + 11, genericString.length() - 1);
+
+                                        // if it's a Parcelable, then we need to know the correct type for the bundler, e.g. List<ParcelableImpl> for parcelable list bundler
+                                        if (PARCELABLE_CLASS_NAME.equals(innerType)) {
+                                            TypeMirror insertedType = getInsertedType(field, true);
+                                            if (insertedType != null) {
+                                                innerType = insertedType.toString();
+                                            }
+                                        }
+
+                                        ClassName erasureClassName = ClassName.bestGuess(mTypeUtils.erasure(genericTypeMirror).toString());
+                                        genericName = ParameterizedTypeName.get(erasureClassName, ClassName.bestGuess(innerType));
+                                    } else {
+                                        genericName = ClassName.get(genericTypeMirror);
+                                    }
                                 }
                             }
                         }
@@ -668,17 +687,19 @@ public class StateProcessor extends AbstractProcessor {
         return null;
     }
 
-    private TypeMirror getInsertedType(Element field, boolean checkIgnoredTypes) {
+    private TypeMirror getInsertedType(Element field, @SuppressWarnings("SameParameterValue") boolean checkIgnoredTypes) {
         if (field == null) {
             return null;
         }
-        TypeMirror fieldType = field.asType();
+        return getInsertedType(field.asType(), checkIgnoredTypes);
+    }
 
+    private TypeMirror getInsertedType(TypeMirror fieldType, boolean checkIgnoredTypes) {
         if (fieldType instanceof DeclaredType) {
             // generic type, return the generic value
             List<? extends TypeMirror> typeArguments = ((DeclaredType) fieldType).getTypeArguments();
             if (typeArguments != null && !typeArguments.isEmpty()) {
-                return getInsertedType(mElementUtils.getTypeElement(typeArguments.get(0).toString()), false);
+                return getInsertedType(typeArguments.get(0), false);
             }
         }
 
@@ -701,7 +722,7 @@ public class StateProcessor extends AbstractProcessor {
                 if (SERIALIZABLE_CLASS_NAME.equals(superTypeString)) {
                     return fieldType;
                 }
-                TypeMirror result = getInsertedType(mElementUtils.getTypeElement(superTypeString), checkIgnoredTypes);
+                TypeMirror result = getInsertedType(superType, checkIgnoredTypes);
                 if (result != null) {
                     // always return the passed in type and not any super type
                     return fieldType;

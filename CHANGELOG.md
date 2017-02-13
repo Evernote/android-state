@@ -1,3 +1,7 @@
+## 1.0.2 (2017-02-13)
+
+* Provide some `Bundler` implementations for lists, see #4
+
 ## 1.0.1 (2017-01-27)
 
 * Insert missing casted type for `Parcelable` or `Serializable` getters
