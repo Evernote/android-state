@@ -259,6 +259,28 @@ public class TestBundling {
         assertThat(level1.mValue1).isEqualTo(4);
     }
 
+    @Test
+    public void testInheritanceGeneric() {
+        TestInheritanceGeneric.InheritanceLevelGeneric2 level2 = createSavedInstance(TestInheritanceGeneric.InheritanceLevelGeneric2.class);
+        level2.mValue1 = 4;
+        level2.mValue2 = 5;
+
+        StateSaver.restoreInstanceState(level2, mBundle);
+        assertThat(level2.mValue1).isEqualTo(0);
+        assertThat(level2.mValue2).isEqualTo(0);
+
+        level2.mValue1 = 4;
+        level2.mValue2 = 5;
+
+        StateSaver.saveInstanceState(level2, mBundle);
+        level2.mValue1 = 0;
+        level2.mValue2 = 0;
+
+        StateSaver.restoreInstanceState(level2, mBundle);
+        assertThat(level2.mValue1).isEqualTo(4);
+        assertThat(level2.mValue2).isEqualTo(5);
+    }
+
     private <T> T createSavedInstance(Class<T> clazz) {
         try {
             T instance = clazz.newInstance();

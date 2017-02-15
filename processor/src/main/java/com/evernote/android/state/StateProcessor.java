@@ -223,14 +223,14 @@ public class StateProcessor extends AbstractProcessor {
             final String className = getClassName(classElement);
             final boolean isView = isAssignable(classElement, View.class);
 
-            final TypeVariableName genericType = TypeVariableName.get("T", TypeName.get(classElement.asType()));
+            final TypeVariableName genericType = TypeVariableName.get("T", TypeName.get(eraseGenericIfNecessary(classElement.asType())));
 
             final TypeName superTypeName;
             final TypeMirror superType = getSuperType(classElement.asType(), allClassElements);
             if (superType == null) {
                 superTypeName = ParameterizedTypeName.get(ClassName.get(isView ? Injector.View.class : Injector.Object.class), genericType);
             } else {
-                superTypeName = ParameterizedTypeName.get(ClassName.bestGuess(superType.toString() + StateSaver.SUFFIX), genericType);
+                superTypeName = ParameterizedTypeName.get(ClassName.bestGuess(eraseGenericIfNecessary(superType).toString() + StateSaver.SUFFIX), genericType);
             }
 
             MethodSpec.Builder saveMethodBuilder = MethodSpec.methodBuilder("save")
@@ -691,6 +691,11 @@ public class StateProcessor extends AbstractProcessor {
         List<Element> result = new ArrayList<>(collection);
         Collections.sort(result, COMPARATOR);
         return result;
+    }
+
+    private TypeMirror eraseGenericIfNecessary(TypeMirror typeMirror) {
+        // is there a better way to detect a generic type?
+        return typeMirror.toString().endsWith(">") ? mTypeUtils.erasure(typeMirror) : typeMirror;
     }
 
     private TypeMirror getSuperType(TypeMirror classElement, Set<Element> allClassElements) {
