@@ -118,6 +118,7 @@ public class StateProcessor extends AbstractProcessor {
     private static final String SERIALIZABLE_CLASS_NAME = Serializable.class.getName();
     private static final String ARRAY_LIST_CLASS_NAME = ArrayList.class.getName();
     private static final String SPARSE_ARRAY_CLASS_NAME = SparseArray.class.getName();
+    private static final String ENUM_CLASS_NAME = Enum.class.getName();
 
     private static final Set<String> IGNORED_TYPE_DECLARATIONS = Collections.unmodifiableSet(new HashSet<String>() {{
         add(Bundle.class.getName());
@@ -746,6 +747,10 @@ public class StateProcessor extends AbstractProcessor {
                     return fieldType;
                 }
                 if (SERIALIZABLE_CLASS_NAME.equals(superTypeString)) {
+                    return fieldType;
+                }
+                if (superTypeString.startsWith(ENUM_CLASS_NAME)) {
+                    // Necessary for Kotlin enums, otherwise this ends in an endless loop, e.g. java.lang.Enum<com.world.MyEnum>
                     return fieldType;
                 }
                 TypeMirror result = getInsertedType(superType, checkIgnoredTypes);

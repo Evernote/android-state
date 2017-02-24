@@ -73,4 +73,24 @@ class TestKotlinBundling {
         assertThat(kotlinList.parcelableList[0]).isEqualTo(TestTypes.ParcelableImpl(1))
         assertThat(kotlinList.parcelableListPublic[0]).isEqualTo(TestTypes.ParcelableImpl(1))
     }
+
+    @Test
+    fun testKotlinEnum() {
+        val kotlinEnum = TestKotlinEnum()
+        assertThat(kotlinEnum.kotlinEnum).isEqualTo(KotlinEnum.LEFT)
+
+        val bundle = Bundle()
+        StateSaver.saveInstanceState(kotlinEnum, bundle)
+
+        kotlinEnum.kotlinEnum = KotlinEnum.RIGHT
+        StateSaver.restoreInstanceState(kotlinEnum, bundle)
+        assertThat(kotlinEnum.kotlinEnum).isEqualTo(KotlinEnum.LEFT)
+
+        kotlinEnum.kotlinEnum = KotlinEnum.RIGHT
+        StateSaver.saveInstanceState(kotlinEnum, bundle)
+
+        kotlinEnum.kotlinEnum = KotlinEnum.LEFT
+        StateSaver.restoreInstanceState(kotlinEnum, bundle)
+        assertThat(kotlinEnum.kotlinEnum).isEqualTo(KotlinEnum.RIGHT)
+    }
 }

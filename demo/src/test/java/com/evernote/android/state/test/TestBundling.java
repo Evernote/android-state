@@ -281,6 +281,23 @@ public class TestBundling {
         assertThat(level2.mValue2).isEqualTo(5);
     }
 
+    @Test
+    public void testJavaEnum() {
+        TestJavaEnum testJavaEnum = createSavedInstance(TestJavaEnum.class);
+        testJavaEnum.mJavaEnum = TestJavaEnum.JavaEnum.RIGHT;
+
+        StateSaver.restoreInstanceState(testJavaEnum, mBundle);
+        assertThat(testJavaEnum.mJavaEnum).isEqualTo(TestJavaEnum.JavaEnum.LEFT);
+
+        testJavaEnum.mJavaEnum = TestJavaEnum.JavaEnum.RIGHT;
+
+        StateSaver.saveInstanceState(testJavaEnum, mBundle);
+        testJavaEnum.mJavaEnum = TestJavaEnum.JavaEnum.LEFT;
+
+        StateSaver.restoreInstanceState(testJavaEnum, mBundle);
+        assertThat(testJavaEnum.mJavaEnum).isEqualTo(TestJavaEnum.JavaEnum.RIGHT);
+    }
+
     private <T> T createSavedInstance(Class<T> clazz) {
         try {
             T instance = clazz.newInstance();
