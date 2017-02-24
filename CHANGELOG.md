@@ -1,3 +1,7 @@
+## 1.0.4 (2017-02-24)
+
+* Fix a Stackoverflow error when using Kotlin enums, see #8
+
 ## 1.0.3 (2017-02-15)
 
 * Provide some `Bundler` implementations for lists, see #4
