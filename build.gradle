@@ -38,6 +38,6 @@ ext {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.3'
+    gradleVersion = '3.4'
     distributionType = 'ALL'
 }
