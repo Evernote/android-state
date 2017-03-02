@@ -1,3 +1,7 @@
+## 1.0.5 (2017-03-02)
+
+* Fix a Stackoverflow error when using Kotlin generics, see #9
+
 ## 1.0.4 (2017-02-24)
 
 * Fix a Stackoverflow error when using Kotlin enums, see #8
