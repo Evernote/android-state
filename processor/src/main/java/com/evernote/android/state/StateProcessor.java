@@ -65,7 +65,6 @@ import javax.tools.Diagnostic;
 /**
  * @author rwondratschek
  */
-@SuppressWarnings("unused")
 @AutoService(Processor.class)
 public class StateProcessor extends AbstractProcessor {
 
@@ -116,9 +115,6 @@ public class StateProcessor extends AbstractProcessor {
     private static final String OBJECT_CLASS_NAME = Object.class.getName();
     private static final String PARCELABLE_CLASS_NAME = Parcelable.class.getName();
     private static final String SERIALIZABLE_CLASS_NAME = Serializable.class.getName();
-    private static final String ARRAY_LIST_CLASS_NAME = ArrayList.class.getName();
-    private static final String SPARSE_ARRAY_CLASS_NAME = SparseArray.class.getName();
-    private static final String ENUM_CLASS_NAME = Enum.class.getName();
 
     private static final Set<String> IGNORED_TYPE_DECLARATIONS = Collections.unmodifiableSet(new HashSet<String>() {{
         add(Bundle.class.getName());
@@ -731,7 +727,7 @@ public class StateProcessor extends AbstractProcessor {
         }
 
         TypeElement classElement = mElementUtils.getTypeElement(fieldType.toString());
-        if (classElement == null) {
+        if (classElement == null || OBJECT_CLASS_NAME.equals(classElement.toString())) {
             return null;
         }
 
@@ -749,11 +745,10 @@ public class StateProcessor extends AbstractProcessor {
                 if (SERIALIZABLE_CLASS_NAME.equals(superTypeString)) {
                     return fieldType;
                 }
-                if (superTypeString.startsWith(ENUM_CLASS_NAME)) {
-                    // Necessary for Kotlin enums, otherwise this ends in an endless loop, e.g. java.lang.Enum<com.world.MyEnum>
-                    return fieldType;
-                }
-                TypeMirror result = getInsertedType(superType, checkIgnoredTypes);
+            }
+
+            for (TypeMirror superType : typeMirrors) {
+                TypeMirror result = getInsertedType(eraseGenericIfNecessary(superType), checkIgnoredTypes);
                 if (result != null) {
                     // always return the passed in type and not any super type
                     return fieldType;
