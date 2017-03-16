@@ -169,15 +169,23 @@ public class StateProcessor extends AbstractProcessor {
             }
 
             BundlerWrapper bundlerWrapper = getBundlerWrapper(field);
-            String key = field.asType().toString();
-            if (bundlerWrapper == null && TYPE_MAPPING.get(key) == null) {
+            if (bundlerWrapper == null && TYPE_MAPPING.get(field.asType().toString()) == null) {
                 CompatibilityType compatibilityType = getCompatibilityType(field);
                 if (compatibilityType == null) {
                     mMessager.printMessage(Diagnostic.Kind.ERROR, "Don't know how to put " + field.asType() + " into a bundle", field);
                     return true;
                 }
 
-                TYPE_MAPPING.put(key, compatibilityType.mMapping); // this caches the class
+                /*
+                 * Something really weird happens here. In Kotlin inner classes use a '$' sign instead of a '.'as delimiter,
+                 * e.g. field.asType().toString() returns "com.evernote.android.state.test.YNABFormats$Currency"
+                 *
+                 * After the getCompatibilityType() method the same method call on the same object returns
+                 * "com.evernote.android.state.test.YNABFormats.Currency", what is actually expected.
+                 *
+                 * I don't get why that's the case. But definitely use the new value as key in the map.
+                 */
+                TYPE_MAPPING.put(field.asType().toString(), compatibilityType.mMapping); // this caches the class
             }
             if (bundlerWrapper != null) {
                 Element privateClass = getPrivateClass(mElementUtils.getTypeElement(bundlerWrapper.mGenericName.toString()));
@@ -665,8 +673,8 @@ public class StateProcessor extends AbstractProcessor {
                 }
 
             } else if (typeMirror.getKind() != TypeKind.WILDCARD) {
-                if (isAssignable(mTypeUtils.erasure(field.asType()), compatibilityType.mClass)) {
-                    List<? extends TypeMirror> typeArguments = ((DeclaredType) field.asType()).getTypeArguments();
+                if (isAssignable(mTypeUtils.erasure(typeMirror), compatibilityType.mClass)) {
+                    List<? extends TypeMirror> typeArguments = ((DeclaredType) typeMirror).getTypeArguments();
                     if (typeArguments != null && typeArguments.size() >= 1 && isAssignable(typeArguments.get(0), compatibilityType.mGenericClass)) {
                         return compatibilityType;
                     }

@@ -1,3 +1,7 @@
+## 1.0.6
+
+* Fix inner classes in Kotlin, see #11
+
 ## 1.0.5 (2017-03-02)
 
 * Fix a Stackoverflow error when using Kotlin generics, see #9

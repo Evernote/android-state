@@ -30,4 +30,7 @@ class TestKotlinList {
 
     @State(BundlerListParcelable::class)
     var parcelableList = mutableListOf(TestTypes.ParcelableImpl(1))
+
+    @State @Suppress("unused")
+    var innerClass: TestKotlinInnerClass.Inner? = null
 }
