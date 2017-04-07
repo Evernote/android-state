@@ -8,12 +8,12 @@ Download the latest [library](https://search.maven.org/#search%7Cga%7C1%7Ca%3A%2
 
 ```groovy
 dependencies {
-    compile 'com.evernote:android-state:1.0.5'
-    // Java only
-    annotationProcessor 'com.evernote:android-state-processor:1.0.5'
+    compile 'com.evernote:android-state:1.0.6'
+    // Java only project
+    annotationProcessor 'com.evernote:android-state-processor:1.0.6'
 
-    // Kotlin & Java
-    kapt 'com.evernote:android-state-processor:1.0.5'
+    // Kotlin with or without Java
+    kapt 'com.evernote:android-state-processor:1.0.6'
 }
 ```
 
@@ -163,4 +163,8 @@ are made available under the terms of the Eclipse Public License v1.0
 which accompanies this distribution, and is available at
 
 http://www.eclipse.org/legal/epl-v10.html
+
+Files produced by Android-State code generator are not subject to terms
+of the Eclipse Public License 1.0 and can be used as set out in the
+copyright notice included in the generated files.
 ```
