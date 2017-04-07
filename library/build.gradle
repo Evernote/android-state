@@ -2,6 +2,8 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.ben-manes.versions'
 apply from: "$rootDir/gradle/gradle-quality.gradle"
 
+archivesBaseName = 'android-state'
+
 dependencies {
     provided "com.android.support:support-annotations:$rootProject.ext.supportLibVersion"
 }

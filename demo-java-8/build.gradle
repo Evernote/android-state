@@ -67,3 +67,5 @@ dependencies {
     testCompile 'org.robolectric:robolectric:3.2.2'
     testCompile 'org.robolectric:android-all:6.0.0_r1-robolectric-0'
 }
+
+uploadArchives.enabled false
