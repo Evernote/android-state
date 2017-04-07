@@ -15,7 +15,7 @@ dependencies {
 
     compile files('../library/build/intermediates/bundles/default/classes.jar')
 
-    testCompile "junit:junit:junitVersion"
+    testCompile "junit:junit:$junitVersion"
     testCompile 'com.google.testing.compile:compile-testing:0.10'
     testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }

@@ -29,7 +29,9 @@ import com.squareup.javapoet.TypeVariableName;
 import com.squareup.javapoet.WildcardTypeName;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,6 +41,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -61,6 +64,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
+import javax.tools.JavaFileObject;
 
 /**
  * @author rwondratschek
@@ -133,6 +137,8 @@ public class StateProcessor extends AbstractProcessor {
     private Elements mElementUtils;
     private Filer mFiler;
     private Messager mMessager;
+
+    private volatile String mLicenseHeader;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -397,15 +403,40 @@ public class StateProcessor extends AbstractProcessor {
                     .build();
 
             JavaFile javaFile = JavaFile.builder(packageName, classBuilder).build();
-            try {
-                javaFile.writeTo(mFiler);
-            } catch (IOException e) {
-                mMessager.printMessage(Diagnostic.Kind.ERROR, "Couldn't generate classes");
-                return true;
+            if (!writeJavaFile(javaFile)) {
+                return true; // failed, stop processor here
             }
         }
 
         return true;
+    }
+
+    private boolean writeJavaFile(JavaFile javaFile) {
+        StringBuilder builder = new StringBuilder();
+
+        JavaFileObject filerSourceFile = null;
+
+        try {
+            builder.append(getLicenseHeader());
+            javaFile.writeTo(builder);
+
+            String fileName = javaFile.packageName.isEmpty() ? javaFile.typeSpec.name : javaFile.packageName + "." + javaFile.typeSpec.name;
+            List<Element> originatingElements = javaFile.typeSpec.originatingElements;
+            filerSourceFile = mFiler.createSourceFile(fileName, originatingElements.toArray(new Element[originatingElements.size()]));
+
+            try (Writer writer = filerSourceFile.openWriter()) {
+                writer.write(builder.toString());
+            }
+            return true;
+
+        } catch (Exception e) {
+            mMessager.printMessage(Diagnostic.Kind.ERROR, "Couldn't generate classes");
+            if (filerSourceFile != null) {
+                filerSourceFile.delete();
+            }
+
+            return false;
+        }
     }
 
     private Map<Element, Set<Element>> getClassElements(Collection<? extends Element> annotatedFields) {
@@ -456,13 +487,13 @@ public class StateProcessor extends AbstractProcessor {
     }
 
     private String getClassName(Element classElement) {
-        String className = classElement.getSimpleName().toString();
+        StringBuilder className = new StringBuilder(classElement.getSimpleName().toString());
         Element enclosingElement = classElement.getEnclosingElement();
         while (enclosingElement != null && enclosingElement.getKind() == ElementKind.CLASS) {
-            className = enclosingElement.getSimpleName() + "$" + className;
+            className.insert(0, enclosingElement.getSimpleName() + "$");
             enclosingElement = enclosingElement.getEnclosingElement();
         }
-        return className;
+        return className.toString();
     }
 
     private static String getPropertyFieldName(Element field) {
@@ -764,5 +795,21 @@ public class StateProcessor extends AbstractProcessor {
             }
         }
         return null;
+    }
+
+    private String getLicenseHeader() throws IOException {
+        if (mLicenseHeader == null) {
+            synchronized (this) {
+                if (mLicenseHeader == null) {
+                    try (InputStream inputStream = getClass().getResourceAsStream("/license.txt");
+                         Scanner scanner = new Scanner(inputStream)) {
+
+                        scanner.useDelimiter("\\A");
+                        mLicenseHeader = scanner.next();
+                    }
+                }
+            }
+        }
+        return mLicenseHeader;
     }
 }
