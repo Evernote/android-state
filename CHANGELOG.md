@@ -1,6 +1,7 @@
-## 1.0.6
+## 1.0.6 (2017-04-07)
 
 * Fix inner classes in Kotlin, see #11
+* Add a license header to each generated file, see #10
 
 ## 1.0.5 (2017-03-02)
 
