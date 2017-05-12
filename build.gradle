@@ -35,6 +35,7 @@ ext {
 
     supportLibVersion = '25.3.1'
     junitVersion = '4.12'
+    assertjVersion = '3.6.2'
 }
 
 task wrapper(type: Wrapper) {
