@@ -1,3 +1,7 @@
+## 1.0.7
+
+* Remove unnecessary Proguard rules prevent proper obfuscation, see #15
+
 ## 1.0.6 (2017-04-07)
 
 * Fix inner classes in Kotlin, see #11
