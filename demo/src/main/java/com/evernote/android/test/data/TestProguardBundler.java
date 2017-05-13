@@ -7,14 +7,15 @@ import android.support.annotation.Nullable;
 
 import com.evernote.android.state.Bundler;
 import com.evernote.android.state.State;
+import com.evernote.android.state.StateReflection;
 
 public class TestProguardBundler {
 
     @State(MyBundler.class)
     private Data mData2 = new Data();
 
-//    @State(value = MyBundler.class, reflection = true)
-//    private Data mDataReflOtherName;
+    @StateReflection(value = MyBundler.class)
+    private Data mDataReflOtherName = new Data();
 
     public Data getData2() {
         return mData2;
@@ -24,18 +25,12 @@ public class TestProguardBundler {
         mData2 = data2;
     }
 
-//    public Data getDataRefl() {
-//        return mDataReflOtherName;
-//    }
-//
-//    public void setDataRefl(Data data) {
-//        mDataReflOtherName = data;
-//    }
-
     @Keep
     public void setValue(int value) {
         mData2.int1 = value;
         mData2.int2 = value;
+        mDataReflOtherName.int1 = value;
+        mDataReflOtherName.int2 = value;
     }
 
     @Keep
@@ -44,6 +39,12 @@ public class TestProguardBundler {
             throw new IllegalStateException();
         }
         if (mData2.int2 != value) {
+            throw new IllegalStateException();
+        }
+        if (mDataReflOtherName.int1 != value) {
+            throw new IllegalStateException();
+        }
+        if (mDataReflOtherName.int2 != value) {
             throw new IllegalStateException();
         }
     }

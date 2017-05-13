@@ -105,7 +105,7 @@ If you have a private field and don't want to provide a getter or setter method,
 ```java
 public class ImageProcessor {
 
-    @State(reflection = true)
+    @StateReflection
     private byte[] mImageData;
 
     // ...

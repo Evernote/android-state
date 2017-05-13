@@ -14,6 +14,7 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import com.evernote.android.state.State;
+import com.evernote.android.state.StateReflection;
 import com.evernote.android.state.StateSaver;
 
 /**
@@ -24,7 +25,7 @@ public class MainActivity extends Activity {
     @State
     private int mTest1;
 
-    @State(reflection = true)
+    @StateReflection
     private int test2;
 
     @State

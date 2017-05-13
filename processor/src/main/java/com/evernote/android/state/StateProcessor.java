@@ -116,6 +116,7 @@ public class StateProcessor extends AbstractProcessor {
     };
 
     private static final String STATE_CLASS_NAME = State.class.getName();
+    private static final String STATE_REFLECTION_CLASS_NAME = StateReflection.class.getName();
     private static final String OBJECT_CLASS_NAME = Object.class.getName();
     private static final String PARCELABLE_CLASS_NAME = Parcelable.class.getName();
     private static final String SERIALIZABLE_CLASS_NAME = Serializable.class.getName();
@@ -151,7 +152,10 @@ public class StateProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        return Collections.singleton(State.class.getName());
+        Set<String> annotations = new HashSet<>();
+        annotations.add(State.class.getName());
+        annotations.add(StateReflection.class.getName());
+        return Collections.unmodifiableSet(annotations);
     }
 
     @Override
@@ -161,7 +165,10 @@ public class StateProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
-        final Set<? extends Element> annotatedFields = env.getElementsAnnotatedWith(State.class);
+        final Set<Element> annotatedFields = new HashSet<>();
+        annotatedFields.addAll(env.getElementsAnnotatedWith(State.class));
+        annotatedFields.addAll(env.getElementsAnnotatedWith(StateReflection.class));
+
         final Map<Element, BundlerWrapper> bundlers = new HashMap<>();
 
         for (Element field : annotatedFields) {
@@ -578,7 +585,7 @@ public class StateProcessor extends AbstractProcessor {
 
     private BundlerWrapper getBundlerWrapper(Element field) {
         for (AnnotationMirror annotationMirror : field.getAnnotationMirrors()) {
-            if (!STATE_CLASS_NAME.equals(annotationMirror.getAnnotationType().toString())) {
+            if (!isStateAnnotation(annotationMirror)) {
                 continue;
             }
 
@@ -633,19 +640,8 @@ public class StateProcessor extends AbstractProcessor {
 
     private boolean useReflection(Element field) {
         for (AnnotationMirror annotationMirror : field.getAnnotationMirrors()) {
-            if (!STATE_CLASS_NAME.equals(annotationMirror.getAnnotationType().toString())) {
-                continue;
-            }
-
-            Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = annotationMirror.getElementValues();
-            for (ExecutableElement executableElement : elementValues.keySet()) {
-                if ("reflection".equals(executableElement.getSimpleName().toString())) {
-                    Object value = elementValues.get(executableElement).getValue(); // bundler class
-                    if (value == null) {
-                        continue;
-                    }
-                    return "true".equals(value.toString());
-                }
+            if (STATE_REFLECTION_CLASS_NAME.equals(annotationMirror.getAnnotationType().toString())) {
+                return true;
             }
         }
         return false;
@@ -811,5 +807,10 @@ public class StateProcessor extends AbstractProcessor {
             }
         }
         return mLicenseHeader;
+    }
+
+    private boolean isStateAnnotation(AnnotationMirror annotationMirror) {
+        String string = annotationMirror.getAnnotationType().toString();
+        return STATE_CLASS_NAME.equals(string) || STATE_REFLECTION_CLASS_NAME.equals(string);
     }
 }

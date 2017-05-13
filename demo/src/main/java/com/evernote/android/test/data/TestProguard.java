@@ -3,6 +3,7 @@ package com.evernote.android.test.data;
 import android.support.annotation.Keep;
 
 import com.evernote.android.state.State;
+import com.evernote.android.state.StateReflection;
 
 /**
  * @author rwondratschek
@@ -16,8 +17,8 @@ public class TestProguard {
     @State
     private int test2;
 
-//    @State(reflection = true)
-//    private int test3;
+    @StateReflection
+    private int test3;
 
     public int getTest2() {
         return test2;
@@ -31,7 +32,7 @@ public class TestProguard {
     public void setValue(int value) {
         test1 = value;
         setTest2(value);
-//        test3 = value;
+        test3 = value;
     }
 
     @Keep
@@ -42,8 +43,8 @@ public class TestProguard {
         if (getTest2() != value) {
             throw new IllegalStateException();
         }
-//        if (test3 != value) {
-//            throw new IllegalStateException();
-//        }
+        if (test3 != value) {
+            throw new IllegalStateException();
+        }
     }
 }

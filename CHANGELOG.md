@@ -1,6 +1,7 @@
-## 1.0.7
+## 1.1.0
 
 * Remove unnecessary Proguard rules prevent proper obfuscation, see #15
+* Add new annotation `StateReflection` to properly support obfuscation even though reflection is being used, see #15
 * Bundle library classes in annotation processor, see #13
 
 ## 1.0.6 (2017-04-07)

@@ -20,10 +20,11 @@ import java.lang.annotation.Target;
 
 /**
  * Fields or properties with this annotation will be saved in a {@link Bundle} and restored
- * from it while using the {@link StateSaver}.
+ * from it while using the {@link StateSaver}. Compared to {@link State} this strategy relies
+ * on reflection. If you can, you should use {@link State} instead.
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.CLASS)
-public @interface State {
+public @interface StateReflection {
     Class<? extends Bundler> value() default Bundler.class;
 }
