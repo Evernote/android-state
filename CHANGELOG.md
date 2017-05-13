@@ -1,6 +1,7 @@
 ## 1.0.7
 
 * Remove unnecessary Proguard rules prevent proper obfuscation, see #15
+* Bundle library classes in annotation processor, see #13
 
 ## 1.0.6 (2017-04-07)
 
