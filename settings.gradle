@@ -1,6 +1,6 @@
 include ':demo'
-include ':library'
 include ':library-lint'
+include ':library'
 include ':processor'
 include ':demo-java-8'
 include ':deviceTests'

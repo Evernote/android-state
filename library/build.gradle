@@ -4,10 +4,6 @@ apply from: "$rootDir/gradle/gradle-quality.gradle"
 
 archivesBaseName = 'android-state'
 
-dependencies {
-    provided "com.android.support:support-annotations:$rootProject.ext.supportLibVersion"
-}
-
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -32,6 +28,27 @@ android {
     lintOptions {
         abortOnError true
     }
+}
+
+configurations {
+    lintChecks
+}
+
+dependencies {
+    provided "com.android.support:support-annotations:$rootProject.ext.supportLibVersion"
+    lintChecks project(path: ':library-lint', configuration: 'lintChecks')
+}
+
+task copyLintJar(type: Copy) {
+    from(configurations.lintChecks) {
+        rename { 'lint.jar' }
+    }
+    into 'build/intermediates/lint/'
+}
+
+project.afterEvaluate {
+    def compileLintTask = project.tasks.find { it.name == 'compileLint' }
+    compileLintTask.dependsOn(copyLintJar)
 }
 
 apply from: "$rootDir/gradle/gradle-push.gradle"

@@ -1,6 +1,6 @@
 package com.evernote.android.state.lint.registry
 
-import com.evernote.android.state.lint.detector.EvernoteJavaDetector
+import com.evernote.android.state.lint.detector.StateJavaDetector
 import org.junit.Before
 import org.junit.Test
 
@@ -35,7 +35,7 @@ class IssueRegistryTest {
     @Test
     fun testGetIssues() {
         val actual = mIssueRegistry!!.issues
-        assert(actual.contains(EvernoteJavaDetector.NonMatchingStateSaverCalls.ISSUE))
+        assert(actual.contains(StateJavaDetector.NonMatchingStateSaverCalls.ISSUE))
     }
 
 }
