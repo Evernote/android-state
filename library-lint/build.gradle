@@ -31,7 +31,7 @@ jar {
 
     manifest {
         attributes 'Manifest-Version': 1.0
-        attributes 'Lint-Registry': 'com.evernote.android.state.lint.registry.EvernoteIssueRegistry'
+        attributes 'Lint-Registry': 'com.evernote.android.state.lint.registry.StateIssueRegistry'
     }
 
     sourceSets {

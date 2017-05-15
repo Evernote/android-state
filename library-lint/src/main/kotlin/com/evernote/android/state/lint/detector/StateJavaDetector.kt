@@ -21,7 +21,7 @@ import java.util.EnumSet
  *
  * Created by junchengc on 5/15/17.
  */
-class EvernoteJavaDetector : Detector(), Detector.JavaPsiScanner {
+class StateJavaDetector : Detector(), Detector.JavaPsiScanner {
     object NonMatchingStateSaverCalls {
         var saveInstanceStateCalled = HashMap<PsiClass, PsiMethodCallExpression>()
         var restoreInstanceStateCalled = HashMap<PsiClass, PsiMethodCallExpression>()
@@ -41,7 +41,7 @@ class EvernoteJavaDetector : Detector(), Detector.JavaPsiScanner {
                 Category.CORRECTNESS,
                 6,
                 Severity.WARNING,
-                Implementation(EvernoteJavaDetector::class.java, EnumSet.of(Scope.JAVA_FILE)))
+                Implementation(StateJavaDetector::class.java, EnumSet.of(Scope.JAVA_FILE)))
 
         val APPLICABLE_METHODS = listOf(SAVE_INSTANCE_STATE_METHOD, RESTORE_INSTANCE_STATE_METHOD)
 

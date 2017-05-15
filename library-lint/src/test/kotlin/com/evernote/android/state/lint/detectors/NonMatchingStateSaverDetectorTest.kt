@@ -3,7 +3,7 @@ package com.evernote.android.state.lint.detectors
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import com.evernote.android.state.lint.AbstractDetectorTest
-import com.evernote.android.state.lint.detector.EvernoteJavaDetector
+import com.evernote.android.state.lint.detector.StateJavaDetector
 
 /**
  * Created by junchengc on 5/11/17.
@@ -12,12 +12,12 @@ import com.evernote.android.state.lint.detector.EvernoteJavaDetector
 class NonMatchingStateSaverDetectorTest : AbstractDetectorTest() {
 
     override fun getDetector(): Detector {
-        return EvernoteJavaDetector()
+        return StateJavaDetector()
     }
 
     override fun getIssues(): List<Issue> {
         return listOf(
-                EvernoteJavaDetector.NonMatchingStateSaverCalls.ISSUE
+                StateJavaDetector.NonMatchingStateSaverCalls.ISSUE
         )
     }
 

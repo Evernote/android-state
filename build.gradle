@@ -1,5 +1,4 @@
 buildscript {
-    ext.kotlin_version = '1.1.2-3'
     ext.kotlinVersion = '1.1.2'
     ext.useRetroLambda = true
 
@@ -14,7 +13,6 @@ buildscript {
         if (project.ext.useRetroLambda) {
             classpath 'me.tatarka:gradle-retrolambda:3.6.1'
         }
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 apply plugin: 'kotlin'
@@ -51,5 +49,5 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
 }
