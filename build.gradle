@@ -15,7 +15,7 @@ buildscript {
         }
     }
 }
-apply plugin: 'kotlin'
+//apply plugin: 'kotlin'
 
 allprojects {
     repositories {
@@ -45,9 +45,9 @@ task wrapper(type: Wrapper) {
     gradleVersion = '3.5'
     distributionType = 'ALL'
 }
-repositories {
-    mavenCentral()
-}
-dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
-}
+//repositories {
+//    mavenCentral()
+//}
+//dependencies {
+//    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
+//}
