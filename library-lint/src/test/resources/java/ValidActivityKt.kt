@@ -8,21 +8,23 @@
  * Contributors:
  *    Ralf Wondratschek - initial version
  *******************************************************************************/
-package com.evernote.android.state.lint;
+package com.evernote.android.state.lint
 
-import android.os.Bundle;
+import android.app.Activity
+import android.os.Bundle
+import com.evernote.android.state.StateSaver
 
 /**
  * @author rwondratschek
  */
-public class InvalidChildActivity extends com.evernote.android.state.lint.ValidActivity {
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+class ValidActivityKt : Activity() {
+    protected override fun onCreate(savedInstanceState: Bundle) {
+        super.onCreate(savedInstanceState)
+        StateSaver.restoreInstanceState(this, savedInstanceState)
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        // super.onSaveInstanceState(outState);
+    protected override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        StateSaver.saveInstanceState(this, outState)
     }
 }
