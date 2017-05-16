@@ -4,7 +4,6 @@ import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import com.evernote.android.state.lint.AbstractDetectorTest
 import com.evernote.android.state.lint.detector.StateJavaDetector
-import org.junit.Ignore
 
 /**
  * Created by junchengc on 5/11/17.
@@ -83,8 +82,7 @@ class NonMatchingStateSaverDetectorTest : AbstractDetectorTest() {
     /**
      * Test that an invalid activity written in Kotlin with only a call to restoreInstanceState emits an error
      */
-    @Ignore
-    fun testInvalidActivityNoSaveKt() {
+    fun ignoreTestInvalidActivityNoSaveKt() {
         assertEquals(
                 """
                 InvalidActivityNoSaveKt.kt:24: Warning: StateSaver calls should always occur in pairs. StateSaver.saveInstanceState() should always have a matching call to StateSaver.restoreInstanceState(). [NonMatchingStateSaverCalls]
@@ -117,8 +115,7 @@ class NonMatchingStateSaverDetectorTest : AbstractDetectorTest() {
     /**
      * Test that an invalid activity written in Kotlin with only a call to saveInstanceState emits an error
      */
-    @Ignore
-    fun testInvalidActivityNoRestoreKt() {
+    fun ignoreTestInvalidActivityNoRestoreKt() {
         assertEquals(
                 """
                 InvalidActivityNoRestoreKt.kt:29: Warning: StateSaver calls should always occur in pairs. StateSaver.saveInstanceState() should always have a matching call to StateSaver.restoreInstanceState(). [NonMatchingStateSaverCalls]
