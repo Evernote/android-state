@@ -1,19 +1,14 @@
 package com.evernote.android.state.lint.detector
 
-import com.android.tools.lint.detector.api.Category
-import com.android.tools.lint.detector.api.Context
-import com.android.tools.lint.detector.api.Detector
-import com.android.tools.lint.detector.api.Implementation
-import com.android.tools.lint.detector.api.Issue
-import com.android.tools.lint.detector.api.JavaContext
-import com.android.tools.lint.detector.api.Scope
-import com.android.tools.lint.detector.api.Severity
+import com.android.tools.lint.detector.api.*
 import com.intellij.psi.JavaElementVisitor
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiMethodCallExpression
 import com.intellij.psi.util.PsiTreeUtil
 import java.util.EnumSet
+import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 
 /**
  * This detector crawls through the Java files and looks for non-matching instances of
@@ -31,7 +26,7 @@ class StateJavaDetector : Detector(), Detector.JavaPsiScanner {
         val RESTORE_INSTANCE_STATE_METHOD = "restoreInstanceState"
 
         // Non Matching State Saver Calls
-        val ID = "com.evernote.NonMatchingStateSaverCalls"
+        val ID = "NonMatchingStateSaverCalls"
         val ADVICE = "StateSaver calls should always occur in pairs. StateSaver.saveInstanceState() should always have a matching call to StateSaver.restoreInstanceState()."
 
         val ISSUE: Issue = Issue.create(
