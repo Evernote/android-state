@@ -1,0 +1,53 @@
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply from: "$rootDir/gradle/gradle-quality.gradle"
+
+archivesBaseName = 'android-state-lint'
+
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
+dependencies {
+    // Lint dependencies
+    compile "com.android.tools.lint:lint-api:$lintVersion"
+    compile "com.android.tools.lint:lint-checks:$lintVersion"
+
+    // Kotlin
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    compile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+
+    testCompile "junit:junit:$junitVersion"
+    testCompile "org.assertj:assertj-core:$assertjVersion"
+
+    // Lint test dependencies
+    testCompile "com.android.tools.lint:lint:$lintVersion"
+    testCompile "com.android.tools.lint:lint-tests:$lintVersion"
+    testCompile "com.android.tools:testutils:$lintVersion"
+}
+
+jar {
+    baseName 'com.evernote.android.state.lint'
+    version '1.0'
+
+    manifest {
+        attributes 'Manifest-Version': 1.0
+        attributes 'Lint-Registry': 'com.evernote.android.state.lint.registry.StateIssueRegistry'
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs += 'src/main/kotlin'
+        }
+        test {
+            java.srcDirs += 'src/test/kotlin'
+        }
+    }
+}
+
+configurations {
+    lintChecks
+}
+
+dependencies {
+    lintChecks files(jar)
+}

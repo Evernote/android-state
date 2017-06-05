@@ -26,6 +26,4 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 public @interface State {
     Class<? extends Bundler> value() default Bundler.class;
-
-    boolean reflection() default false;
 }

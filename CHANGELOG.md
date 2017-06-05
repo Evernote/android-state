@@ -1,3 +1,11 @@
+## 1.1.0
+
+* Remove unnecessary Proguard rules prevent proper obfuscation, see #15
+* Add new annotation `StateReflection` to properly support obfuscation even though reflection is being used, see #15
+* Bundle library classes in annotation processor, see #13
+* Detect correct getter and setter for boolean properties with a "is" prefix in Kotlin, see #18
+* Add a Lint check to find matching save and restore calls to ensure a proper usage of the library
+
 ## 1.0.6 (2017-04-07)
 
 * Fix inner classes in Kotlin, see #11

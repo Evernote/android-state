@@ -93,4 +93,32 @@ class TestKotlinBundling {
         StateSaver.restoreInstanceState(kotlinEnum, bundle)
         assertThat(kotlinEnum.kotlinEnum).isEqualTo(KotlinEnum.RIGHT)
     }
+
+    @Test
+    fun testKotlinBoolean() {
+        val kotlinBoolean = TestKotlinBoolean()
+        assertThat(kotlinBoolean.test1).isFalse()
+        assertThat(kotlinBoolean.isTest2).isFalse()
+
+        val bundle = Bundle()
+        StateSaver.saveInstanceState(kotlinBoolean, bundle)
+
+        kotlinBoolean.test1 = true
+        kotlinBoolean.isTest2 = true
+
+        StateSaver.restoreInstanceState(kotlinBoolean, bundle)
+        assertThat(kotlinBoolean.test1).isFalse()
+        assertThat(kotlinBoolean.isTest2).isFalse()
+
+        kotlinBoolean.test1 = true
+        kotlinBoolean.isTest2 = true
+        StateSaver.saveInstanceState(kotlinBoolean, bundle)
+
+        kotlinBoolean.test1 = false
+        kotlinBoolean.isTest2 = false
+
+        StateSaver.restoreInstanceState(kotlinBoolean, bundle)
+        assertThat(kotlinBoolean.test1).isTrue()
+        assertThat(kotlinBoolean.isTest2).isTrue()
+    }
 }

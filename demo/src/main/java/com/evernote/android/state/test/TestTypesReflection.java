@@ -4,24 +4,24 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.SparseArray;
 
-import com.evernote.android.state.State;
+import com.evernote.android.state.StateReflection;
 
 import java.util.ArrayList;
 
 public class TestTypesReflection {
-    @State(reflection = true)
+    @StateReflection
     private int mInt;
-    @State(reflection = true)
+    @StateReflection
     private int[] mIntArray;
-    @State(reflection = true)
+    @StateReflection
     private Integer mIntegerObj;
-    @State(reflection = true)
+    @StateReflection
     private Bundle mBundle;
-    @State(reflection = true)
+    @StateReflection
     private Parcelable[] mParcelableArray;
-    @State(reflection = true)
+    @StateReflection
     private ArrayList<? extends TestTypes.ParcelableImpl> mParcelableArrayList;
-    @State(reflection = true)
+    @StateReflection
     private SparseArray<TestTypes.ParcelableImpl> mParcelableSparseArray;
 
     public int getInt() {

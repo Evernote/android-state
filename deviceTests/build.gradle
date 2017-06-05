@@ -1,0 +1,41 @@
+apply plugin: 'com.android.test'
+apply plugin: 'kotlin-android'
+apply from: "$rootDir/gradle/gradle-quality.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+
+        testApplicationId 'com.evernote.android.state.demo.test'
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    targetProjectPath ':demo'
+    targetVariant 'proguard'
+
+    buildTypes {
+        debug {
+            minifyEnabled true
+            testProguardFiles 'proguard.cfg'
+        }
+    }
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    compile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+
+    compile "com.android.support:support-annotations:$supportLibVersion"
+    compile 'com.android.support.test:runner:0.5'
+    compile 'com.android.support.test:rules:0.5'
+    compile 'com.android.support.test.espresso:espresso-core:2.2.2'
+    compile 'com.squareup.assertj:assertj-android:1.1.1'
+}

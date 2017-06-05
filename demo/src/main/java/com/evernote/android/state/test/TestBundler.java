@@ -6,13 +6,14 @@ import android.support.annotation.Nullable;
 
 import com.evernote.android.state.Bundler;
 import com.evernote.android.state.State;
+import com.evernote.android.state.StateReflection;
 
 public class TestBundler {
 
     @State(MyBundler.class)
     private Data mData2;
 
-    @State(value = MyBundler.class, reflection = true)
+    @StateReflection(value = MyBundler.class)
     private Data mDataReflOtherName;
 
     public Data getData2() {

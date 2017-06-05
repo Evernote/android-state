@@ -7,6 +7,8 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
+    publishNonDefault true
+
     defaultConfig {
         applicationId "com.evernote.android.state.demo"
 
@@ -23,8 +25,14 @@ android {
             proguardFiles 'proguard.cfg'
         }
 
-        release {
+        proguard.initWith(buildTypes.debug)
+        proguard {
             minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard.cfg'
+        }
+
+        release {
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard.cfg'
             signingConfig signingConfigs.debug
         }
@@ -69,9 +77,8 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
     testCompile "junit:junit:$junitVersion"
-    testCompile 'org.assertj:assertj-core:1.7.1'
-    testCompile 'org.robolectric:robolectric:3.2.2'
-    testCompile 'org.robolectric:android-all:6.0.0_r1-robolectric-0'
+    testCompile "org.assertj:assertj-core:$assertjVersion"
+    testCompile 'org.robolectric:robolectric:3.3.2'
     testCompile "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
 }
