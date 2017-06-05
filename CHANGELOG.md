@@ -1,4 +1,4 @@
-## 1.1.0
+## 1.1.0 (2017-06-05)
 
 * Remove unnecessary Proguard rules prevent proper obfuscation, see #15
 * Add new annotation `StateReflection` to properly support obfuscation even though reflection is being used, see #15
