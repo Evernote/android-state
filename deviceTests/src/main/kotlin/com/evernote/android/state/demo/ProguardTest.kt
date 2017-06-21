@@ -37,13 +37,14 @@ class ProguardTest {
 
     @Test
     fun verifyCodeObfuscated() {
-        TestProguard::class.java.getDeclaredField("a") // test1
-        TestProguard::class.java.getDeclaredField("b") // test2
+        TestProguard::class.java.getDeclaredField("test1") // test1
+        TestProguard::class.java.getDeclaredField("test2") // test2
         TestProguard::class.java.getDeclaredField("test3")
         TestProguard::class.java.getDeclaredMethod("a") // getTest2()
 
-        TestProguardBundler::class.java.getDeclaredField("a") // mData2
+        TestProguardBundler::class.java.getDeclaredField("mData2") // mData2
         TestProguardBundler::class.java.getDeclaredField("mDataReflOtherName")
+        TestProguardBundler::class.java.getDeclaredMethod("a") // getData2()
     }
 
     @Test

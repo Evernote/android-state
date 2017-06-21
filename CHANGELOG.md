@@ -1,3 +1,7 @@
+## 1.1.1
+
+* Add a Proguard rule to keep the class name if the class contains a `State` or `StateReflection annoation`, see #23
+
 ## 1.1.0 (2017-06-05)
 
 * Remove unnecessary Proguard rules prevent proper obfuscation, see #15
