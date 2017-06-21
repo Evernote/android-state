@@ -121,6 +121,11 @@ public class StateProcessor extends AbstractProcessor {
     private static final String PARCELABLE_CLASS_NAME = Parcelable.class.getName();
     private static final String SERIALIZABLE_CLASS_NAME = Serializable.class.getName();
 
+    private static final Set<String> GENERIC_SUPER_TYPES = Collections.unmodifiableSet(new HashSet<String>() {{
+        add(PARCELABLE_CLASS_NAME);
+        add(SERIALIZABLE_CLASS_NAME);
+    }});
+
     private static final Set<String> IGNORED_TYPE_DECLARATIONS = Collections.unmodifiableSet(new HashSet<String>() {{
         add(Bundle.class.getName());
         add(String.class.getName());
@@ -785,15 +790,23 @@ public class StateProcessor extends AbstractProcessor {
     }
 
     private TypeMirror getInsertedType(TypeMirror fieldType, boolean checkIgnoredTypes) {
+        TypeElement classElement = mElementUtils.getTypeElement(eraseGenericIfNecessary(fieldType).toString());
+        List<? extends TypeMirror> superTypes = classElement == null ? null : mTypeUtils.directSupertypes(classElement.asType());
+
         if (fieldType instanceof DeclaredType) {
-            // generic type, return the generic value
             List<? extends TypeMirror> typeArguments = ((DeclaredType) fieldType).getTypeArguments();
             if (typeArguments != null && !typeArguments.isEmpty()) {
+                // generic type, return the generic value
+
+                if (superTypes != null && isSuperType(superTypes, GENERIC_SUPER_TYPES) && !fieldType.toString().startsWith(ArrayList.class.getName())) {
+                    // if this is generic Parcelable or Serializable, then use the type, ignore ArrayList, which also implements Serializable
+                    return fieldType;
+                }
+
                 return getInsertedType(typeArguments.get(0), false);
             }
         }
 
-        TypeElement classElement = mElementUtils.getTypeElement(fieldType.toString());
         if (classElement == null || OBJECT_CLASS_NAME.equals(classElement.toString())) {
             return null;
         }
@@ -802,19 +815,13 @@ public class StateProcessor extends AbstractProcessor {
             return null;
         }
 
-        List<? extends TypeMirror> typeMirrors = mTypeUtils.directSupertypes(classElement.asType());
-        if (typeMirrors != null) {
-            for (TypeMirror superType : typeMirrors) {
-                String superTypeString = superType.toString();
-                if (PARCELABLE_CLASS_NAME.equals(superTypeString)) {
-                    return fieldType;
-                }
-                if (SERIALIZABLE_CLASS_NAME.equals(superTypeString)) {
-                    return fieldType;
-                }
+        if (superTypes != null) {
+            if (isSuperType(superTypes, GENERIC_SUPER_TYPES)) {
+                // either instance of Serializable or Parcelable
+                return fieldType;
             }
 
-            for (TypeMirror superType : typeMirrors) {
+            for (TypeMirror superType : superTypes) {
                 TypeMirror result = getInsertedType(eraseGenericIfNecessary(superType), checkIgnoredTypes);
                 if (result != null) {
                     // always return the passed in type and not any super type
@@ -823,6 +830,15 @@ public class StateProcessor extends AbstractProcessor {
             }
         }
         return null;
+    }
+
+    private boolean isSuperType(List<? extends TypeMirror> typeMirrors, Collection<String> superTypes) {
+        for (TypeMirror superType : typeMirrors) {
+            if (superTypes.contains(superType.toString())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String getLicenseHeader() throws IOException {

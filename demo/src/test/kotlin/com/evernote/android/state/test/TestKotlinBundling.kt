@@ -12,6 +12,8 @@ package com.evernote.android.state.test
 
 import android.os.Bundle
 import com.evernote.android.state.StateSaver
+import com.evernote.android.test.data.GenericSerializable
+import com.evernote.android.test.data.TestJavaGenericSerializable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.FixMethodOrder
 import org.junit.Test
@@ -120,5 +122,38 @@ class TestKotlinBundling {
         StateSaver.restoreInstanceState(kotlinBoolean, bundle)
         assertThat(kotlinBoolean.test1).isTrue()
         assertThat(kotlinBoolean.isTest2).isTrue()
+    }
+
+    @Test
+    fun testGenericSerializable() {
+        val javaGenericSerializable = TestJavaGenericSerializable()
+        val kotlinGenericSerializable = TestKotlinGenericSerializable()
+        assertThat(javaGenericSerializable.genericSerializable).isNull()
+        assertThat(kotlinGenericSerializable.genericSerializable).isNull()
+
+        val bundle = Bundle()
+        StateSaver.saveInstanceState(javaGenericSerializable, bundle)
+        StateSaver.saveInstanceState(kotlinGenericSerializable, bundle)
+
+        javaGenericSerializable.genericSerializable = GenericSerializable()
+        kotlinGenericSerializable.genericSerializable = GenericSerializable()
+
+        StateSaver.restoreInstanceState(javaGenericSerializable, bundle)
+        StateSaver.restoreInstanceState(kotlinGenericSerializable, bundle)
+        assertThat(javaGenericSerializable.genericSerializable).isNull()
+        assertThat(kotlinGenericSerializable.genericSerializable).isNull()
+
+        javaGenericSerializable.genericSerializable = GenericSerializable()
+        kotlinGenericSerializable.genericSerializable = GenericSerializable()
+        StateSaver.saveInstanceState(javaGenericSerializable, bundle)
+        StateSaver.saveInstanceState(kotlinGenericSerializable, bundle)
+
+        javaGenericSerializable.genericSerializable = null
+        kotlinGenericSerializable.genericSerializable = null
+
+        StateSaver.restoreInstanceState(javaGenericSerializable, bundle)
+        StateSaver.restoreInstanceState(kotlinGenericSerializable, bundle)
+        assertThat(javaGenericSerializable.genericSerializable as Any).isNotNull()
+        assertThat(kotlinGenericSerializable.genericSerializable as Any).isNotNull()
     }
 }

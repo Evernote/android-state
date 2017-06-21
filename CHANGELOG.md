@@ -1,6 +1,7 @@
 ## 1.1.1
 
 * Add a Proguard rule to keep the class name if the class contains a `State` or `StateReflection annoation`, see #23
+* Handle a generic `Serializable` or `Parcelable` properly, see #24
 
 ## 1.1.0 (2017-06-05)
 
