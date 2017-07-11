@@ -1,3 +1,7 @@
+## 1.1.2 (2017-07-11)
+
+* Fix nullable lists containing `Parcelable` elements in Kotlin, see #25
+
 ## 1.1.1 (2017-06-22)
 
 * Add a Proguard rule to keep the class name if the class contains a `State` or `StateReflection annoation`, see #23

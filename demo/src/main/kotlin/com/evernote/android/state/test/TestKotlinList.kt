@@ -33,4 +33,16 @@ class TestKotlinList {
 
     @State @Suppress("unused")
     var innerClass: TestKotlinInnerClass.Inner? = null
+
+    @State(BundlerListParcelable::class)
+    var nullableList: List<TestTypes.ParcelableImpl>? = null
+
+    @State(BundlerListParcelable::class)
+    lateinit var lateInitList: List<TestTypes.ParcelableImpl>
+
+    @State
+    var nullableArrayList: ArrayList<TestTypes.ParcelableImpl>? = null
+
+    @State
+    lateinit var lateInitArrayList: ArrayList<TestTypes.ParcelableImpl>
 }

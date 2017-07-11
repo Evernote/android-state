@@ -764,7 +764,16 @@ public class StateProcessor extends AbstractProcessor {
 
     private TypeMirror eraseGenericIfNecessary(TypeMirror typeMirror) {
         // is there a better way to detect a generic type?
-        return typeMirror.toString().endsWith(">") ? mTypeUtils.erasure(typeMirror) : typeMirror;
+        return (typeMirror.toString().endsWith(">")) ? mTypeUtils.erasure(typeMirror) : typeMirror;
+    }
+
+    private TypeMirror eraseCovarianceAndInvariance(TypeMirror typeMirror) {
+        String string = typeMirror.toString();
+        if (string.startsWith("? extends") || string.startsWith("? super")) {
+            return mTypeUtils.erasure(typeMirror);
+        } else {
+            return typeMirror;
+        }
     }
 
     private TypeMirror getSuperType(TypeMirror classElement, Set<Element> allClassElements) {
@@ -790,6 +799,8 @@ public class StateProcessor extends AbstractProcessor {
     }
 
     private TypeMirror getInsertedType(TypeMirror fieldType, boolean checkIgnoredTypes) {
+        fieldType = eraseCovarianceAndInvariance(fieldType);
+
         TypeElement classElement = mElementUtils.getTypeElement(eraseGenericIfNecessary(fieldType).toString());
         List<? extends TypeMirror> superTypes = classElement == null ? null : mTypeUtils.directSupertypes(classElement.asType());
 
