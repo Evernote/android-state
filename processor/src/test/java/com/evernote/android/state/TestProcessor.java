@@ -1302,7 +1302,7 @@ public class TestProcessor {
         Compilation compilation = Compiler.javac().withProcessors(new StateProcessor()).compile(javaFileObject);
         assertThat(compilation).failed();
         assertThat(compilation)
-                .hadErrorContaining("Field must be either non-private or provide a getter and setter method")
+                .hadErrorContaining("Field test must be either non-private or provide a getter and setter method")
                 .inFile(javaFileObject)
                 .onLine(7)
                 .atColumn(17);
@@ -1331,7 +1331,7 @@ public class TestProcessor {
         Compilation compilation = Compiler.javac().withProcessors(new StateProcessor()).compile(javaFileObject);
         assertThat(compilation).failed();
         assertThat(compilation)
-                .hadErrorContaining("Field must be either non-private or provide a getter and setter method")
+                .hadErrorContaining("Field test must be either non-private or provide a getter and setter method")
                 .inFile(javaFileObject)
                 .onLine(7)
                 .atColumn(17);

@@ -305,7 +305,11 @@ public class StateProcessor extends AbstractProcessor {
                 String fieldTypeString = field.asType().toString();
                 String mapping = TYPE_MAPPING.get(fieldTypeString);
 
-                FieldType fieldType = getFieldType(field);
+                FieldType fieldType = getFieldType(field, false);
+                if (fieldType == FieldType.NOT_SUPPORTED && isHungarianNotation(field)) {
+                    fieldType = getFieldType(field, true);
+                }
+
                 String fieldName = fieldType.getFieldName(field);
 
                 BundlerWrapper bundler = bundlers.get(field);
@@ -322,6 +326,7 @@ public class StateProcessor extends AbstractProcessor {
 
                     case BOOLEAN_PROPERTY:
                     case BOOLEAN_PROPERTY_KOTLIN:
+                    case PROPERTY_HUNGARIAN:
                     case PROPERTY:
                         if (fieldType == FieldType.BOOLEAN_PROPERTY || fieldType == FieldType.BOOLEAN_PROPERTY_KOTLIN) {
                             saveMethodBuilder.addStatement("HELPER.put$N(state, $S, target.$N$N())", mapping, fieldName, "is", fieldName);
@@ -380,7 +385,8 @@ public class StateProcessor extends AbstractProcessor {
 
                     case NOT_SUPPORTED:
                     default:
-                        mMessager.printMessage(Diagnostic.Kind.ERROR, "Field must be either non-private or provide a getter and setter method", field);
+                        mMessager.printMessage(Diagnostic.Kind.ERROR, "Field " + field.getSimpleName()
+                            + " must be either non-private or provide a getter and setter method", field);
                         return true;
                 }
             }
@@ -512,15 +518,20 @@ public class StateProcessor extends AbstractProcessor {
         return className.toString();
     }
 
-    private static String getPropertyFieldName(Element field) {
+    private static boolean isHungarianNotation(Element field) {
         String fieldName = field.getSimpleName().toString();
-        if (fieldName.length() >= 2 && fieldName.startsWith("m") && Character.isUpperCase(fieldName.charAt(1))) {
+        return fieldName.length() >= 2 && fieldName.startsWith("m") && Character.isUpperCase(fieldName.charAt(1));
+    }
+
+    private static String getPropertyFieldName(Element field, boolean ignoreHungarianNotation) {
+        String fieldName = field.getSimpleName().toString();
+        if (!ignoreHungarianNotation && isHungarianNotation(field)) {
             fieldName = fieldName.substring(1);
         }
         return Character.toUpperCase(fieldName.charAt(0)) + (fieldName.length() > 1 ? fieldName.substring(1) : "");
     }
 
-    private FieldType getFieldType(Element field) {
+    private FieldType getFieldType(Element field, boolean ignoreHungarianNotation) {
         if (!field.getModifiers().contains(Modifier.PRIVATE)) {
             return FieldType.FIELD;
         }
@@ -529,7 +540,7 @@ public class StateProcessor extends AbstractProcessor {
             return FieldType.FIELD_REFLECTION;
         }
 
-        String fieldName = getPropertyFieldName(field);
+        String fieldName = getPropertyFieldName(field, ignoreHungarianNotation);
         String getterName = "get" + fieldName;
         String isGetterName = "is" + fieldName;
         String setterName = "set" + fieldName;
@@ -594,14 +605,14 @@ public class StateProcessor extends AbstractProcessor {
         } else if (hasIsGetter && hasSetter) {
             return FieldType.BOOLEAN_PROPERTY;
         } else if (hasGetter && hasSetter) {
-            return FieldType.PROPERTY;
+            return ignoreHungarianNotation ? FieldType.PROPERTY_HUNGARIAN : FieldType.PROPERTY;
         } else {
             return FieldType.NOT_SUPPORTED;
         }
     }
 
     private enum FieldType {
-        FIELD, FIELD_REFLECTION, PROPERTY, BOOLEAN_PROPERTY, BOOLEAN_PROPERTY_KOTLIN, NOT_SUPPORTED;
+        FIELD, FIELD_REFLECTION, PROPERTY, BOOLEAN_PROPERTY, BOOLEAN_PROPERTY_KOTLIN, PROPERTY_HUNGARIAN, NOT_SUPPORTED;
 
         public String getFieldName(Element field) {
             switch (this) {
@@ -610,7 +621,9 @@ public class StateProcessor extends AbstractProcessor {
                     return field.getSimpleName().toString();
                 case PROPERTY:
                 case BOOLEAN_PROPERTY:
-                    return getPropertyFieldName(field);
+                    return getPropertyFieldName(field, false);
+                case PROPERTY_HUNGARIAN:
+                    return getPropertyFieldName(field, true);
                 case BOOLEAN_PROPERTY_KOTLIN:
                     return field.getSimpleName().toString().substring(2);
                 case NOT_SUPPORTED:

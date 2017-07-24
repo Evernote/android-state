@@ -45,4 +45,7 @@ class TestKotlinList {
 
     @State
     lateinit var lateInitArrayList: ArrayList<TestTypes.ParcelableImpl>
+
+    @State
+    var mParcelable: TestTypes.ParcelableImpl? = null
 }

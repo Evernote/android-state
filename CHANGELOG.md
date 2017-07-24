@@ -1,3 +1,7 @@
+## 1.1.3 (2017-07-24)
+
+* Fix wrong handling of properties in Kotlin in Hungarian notation, see #26
+
 ## 1.1.2 (2017-07-11)
 
 * Fix nullable lists containing `Parcelable` elements in Kotlin, see #25

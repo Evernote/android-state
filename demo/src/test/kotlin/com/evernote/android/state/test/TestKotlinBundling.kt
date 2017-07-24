@@ -101,27 +101,33 @@ class TestKotlinBundling {
         val kotlinBoolean = TestKotlinBoolean()
         assertThat(kotlinBoolean.test1).isFalse()
         assertThat(kotlinBoolean.isTest2).isFalse()
+        assertThat(kotlinBoolean.mTest3).isFalse()
 
         val bundle = Bundle()
         StateSaver.saveInstanceState(kotlinBoolean, bundle)
 
         kotlinBoolean.test1 = true
         kotlinBoolean.isTest2 = true
+        kotlinBoolean.mTest3 = true
 
         StateSaver.restoreInstanceState(kotlinBoolean, bundle)
         assertThat(kotlinBoolean.test1).isFalse()
         assertThat(kotlinBoolean.isTest2).isFalse()
+        assertThat(kotlinBoolean.mTest3).isFalse()
 
         kotlinBoolean.test1 = true
         kotlinBoolean.isTest2 = true
+        kotlinBoolean.mTest3 = true
         StateSaver.saveInstanceState(kotlinBoolean, bundle)
 
         kotlinBoolean.test1 = false
         kotlinBoolean.isTest2 = false
+        kotlinBoolean.mTest3 = false
 
         StateSaver.restoreInstanceState(kotlinBoolean, bundle)
         assertThat(kotlinBoolean.test1).isTrue()
         assertThat(kotlinBoolean.isTest2).isTrue()
+        assertThat(kotlinBoolean.mTest3).isTrue()
     }
 
     @Test

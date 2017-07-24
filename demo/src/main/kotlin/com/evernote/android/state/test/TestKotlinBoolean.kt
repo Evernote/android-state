@@ -12,4 +12,7 @@ class TestKotlinBoolean {
 
     @State
     var isTest2 = false
+
+    @State
+    var mTest3 = false
 }
