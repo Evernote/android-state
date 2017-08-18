@@ -1,13 +1,14 @@
 buildscript {
-    ext.kotlinVersion = '1.1.2'
+    ext.kotlinVersion = '1.1.4-2'
     ext.useRetroLambda = true
 
     repositories {
         jcenter()
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.1'
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.14.0'
+        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
         if (project.ext.useRetroLambda) {
@@ -20,6 +21,7 @@ allprojects {
     repositories {
         jcenter()
         mavenCentral()
+        google()
     }
 
     tasks.withType(JavaCompile) {
@@ -28,19 +30,19 @@ allprojects {
 }
 
 ext {
-    compileSdkVersion = 25
+    compileSdkVersion = 26
     targetSdkVersion = compileSdkVersion
     minSdkVersion = 14
 
-    buildToolsVersion = '25.0.2'
+    buildToolsVersion = '26.0.1'
 
-    supportLibVersion = '25.3.1'
+    supportLibVersion = '26.0.1'
     junitVersion = '4.12'
     assertjVersion = '3.6.2'
     lintVersion = '25.3.0'
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.5'
+    gradleVersion = '4.1'
     distributionType = 'ALL'
 }
