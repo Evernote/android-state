@@ -14,6 +14,7 @@ import com.evernote.android.state.State
 import com.evernote.android.state.bundlers.BundlerListInteger
 import com.evernote.android.state.bundlers.BundlerListParcelable
 import com.evernote.android.state.bundlers.BundlerListString
+import java.io.Serializable
 
 /**
  * Copyright 2017 Evernote Corporation. All rights reserved.
@@ -48,4 +49,12 @@ class TestKotlinList {
 
     @State
     var mParcelable: TestTypes.ParcelableImpl? = null
+
+    @State
+    var arrayListString = arrayListOf("Hello", "World")
+
+    @State
+    var arrayListSerializable = arrayListOf<MySerializable>()
 }
+
+class MySerializable : TestView(null), Serializable

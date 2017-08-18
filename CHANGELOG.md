@@ -2,6 +2,7 @@
 
 * Add a small optimization, if the object doesn't contain any state variable, see #31
 * Fix potential `ClassCastException`, see #30
+* Serialize `ArrayList` if it contains `Serializable` elements, see #29
 
 ## 1.1.3 (2017-07-24)
 

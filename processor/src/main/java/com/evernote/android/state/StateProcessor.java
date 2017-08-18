@@ -126,6 +126,8 @@ public class StateProcessor extends AbstractProcessor {
         add(SERIALIZABLE_CLASS_NAME);
     }});
 
+    private static final Set<String> GENERIC_SUPER_TYPE_SERIALIZABLE = Collections.singleton(SERIALIZABLE_CLASS_NAME);
+
     private static final Set<String> IGNORED_TYPE_DECLARATIONS = Collections.unmodifiableSet(new HashSet<String>() {{
         add(Bundle.class.getName());
         add(String.class.getName());
@@ -338,10 +340,10 @@ public class StateProcessor extends AbstractProcessor {
                             restoreMethodBuilder = restoreMethodBuilder.addStatement("target.set$N(HELPER.<$T>get$N(state, $S))", fieldName,
                                     bundler.mGenericName, mapping, fieldName);
                         } else {
-                            TypeMirror insertedType = getInsertedType(field, true);
+                            InsertedTypeResult insertedType = getInsertedType(field, true);
                             if (insertedType != null) {
                                 restoreMethodBuilder = restoreMethodBuilder.addStatement("target.set$N(HELPER.<$T>get$N(state, $S))",
-                                        fieldName, ClassName.get(insertedType), mapping, fieldName);
+                                        fieldName, ClassName.get(insertedType.mTypeMirror), mapping, fieldName);
                             } else {
                                 restoreMethodBuilder = restoreMethodBuilder.addStatement("target.set$N(HELPER.get$N(state, $S))",
                                         fieldName, mapping, fieldName);
@@ -665,9 +667,9 @@ public class StateProcessor extends AbstractProcessor {
 
                                         // if it's a Parcelable, then we need to know the correct type for the bundler, e.g. List<ParcelableImpl> for parcelable list bundler
                                         if (PARCELABLE_CLASS_NAME.equals(innerType)) {
-                                            TypeMirror insertedType = getInsertedType(field, true);
+                                            InsertedTypeResult insertedType = getInsertedType(field, true);
                                             if (insertedType != null) {
-                                                innerType = insertedType.toString();
+                                                innerType = insertedType.mTypeMirror.toString();
                                             }
                                         }
 
@@ -804,14 +806,14 @@ public class StateProcessor extends AbstractProcessor {
         return null;
     }
 
-    private TypeMirror getInsertedType(Element field, @SuppressWarnings("SameParameterValue") boolean checkIgnoredTypes) {
+    private InsertedTypeResult getInsertedType(Element field, @SuppressWarnings("SameParameterValue") boolean checkIgnoredTypes) {
         if (field == null) {
             return null;
         }
         return getInsertedType(field.asType(), checkIgnoredTypes);
     }
 
-    private TypeMirror getInsertedType(TypeMirror fieldType, boolean checkIgnoredTypes) {
+    private InsertedTypeResult getInsertedType(TypeMirror fieldType, boolean checkIgnoredTypes) {
         fieldType = eraseCovarianceAndInvariance(fieldType);
 
         TypeElement classElement = mElementUtils.getTypeElement(eraseGenericIfNecessary(fieldType).toString());
@@ -824,10 +826,17 @@ public class StateProcessor extends AbstractProcessor {
 
                 if (superTypes != null && isSuperType(superTypes, GENERIC_SUPER_TYPES) && !fieldType.toString().startsWith(ArrayList.class.getName())) {
                     // if this is generic Parcelable or Serializable, then use the type, ignore ArrayList, which also implements Serializable
-                    return fieldType;
+                    return new InsertedTypeResult(fieldType, isSuperType(superTypes, GENERIC_SUPER_TYPE_SERIALIZABLE));
                 }
 
-                return getInsertedType(typeArguments.get(0), false);
+                InsertedTypeResult insertedType = getInsertedType(typeArguments.get(0), false);
+                if (insertedType != null && insertedType.mSerializable && fieldType.toString().startsWith(ArrayList.class.getName())) {
+                    // because ArrayList was excluded above we need to check again, if it's an ArrayList containing Serializable, then
+                    // just serialize the ArrayList
+                    return new InsertedTypeResult(fieldType, true);
+                }
+
+                return insertedType;
             }
         }
 
@@ -842,14 +851,14 @@ public class StateProcessor extends AbstractProcessor {
         if (superTypes != null) {
             if (isSuperType(superTypes, GENERIC_SUPER_TYPES)) {
                 // either instance of Serializable or Parcelable
-                return fieldType;
+                return new InsertedTypeResult(fieldType, isSuperType(superTypes, GENERIC_SUPER_TYPE_SERIALIZABLE));
             }
 
             for (TypeMirror superType : superTypes) {
-                TypeMirror result = getInsertedType(eraseGenericIfNecessary(superType), checkIgnoredTypes);
+                InsertedTypeResult result = getInsertedType(eraseGenericIfNecessary(superType), checkIgnoredTypes);
                 if (result != null) {
                     // always return the passed in type and not any super type
-                    return fieldType;
+                    return new InsertedTypeResult(fieldType, result.mSerializable);
                 }
             }
         }
@@ -884,5 +893,15 @@ public class StateProcessor extends AbstractProcessor {
     private boolean isStateAnnotation(AnnotationMirror annotationMirror) {
         String string = annotationMirror.getAnnotationType().toString();
         return STATE_CLASS_NAME.equals(string) || STATE_REFLECTION_CLASS_NAME.equals(string);
+    }
+
+    private static final class InsertedTypeResult {
+        private final TypeMirror mTypeMirror;
+        private final boolean mSerializable;
+
+        private InsertedTypeResult(TypeMirror typeMirror, boolean serializable) {
+            mTypeMirror = typeMirror;
+            mSerializable = serializable;
+        }
     }
 }
