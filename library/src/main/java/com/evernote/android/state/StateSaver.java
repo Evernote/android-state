@@ -45,7 +45,7 @@ public final class StateSaver {
         try {
             Class<?> injectorClass = Class.forName(clsName + SUFFIX);
             injector = (Injector) injectorClass.newInstance();
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             injector = getInjector(cls.getSuperclass());
         }
         INJECTORS.put(cls, injector);

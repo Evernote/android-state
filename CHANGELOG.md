@@ -1,3 +1,8 @@
+## 1.1.4
+
+* Add a small optimization, if the object doesn't contain any state variable, see #31
+* Fix potential `ClassCastException`, see #30
+
 ## 1.1.3 (2017-07-24)
 
 * Fix wrong handling of properties in Kotlin in Hungarian notation, see #26
