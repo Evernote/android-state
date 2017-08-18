@@ -1,4 +1,4 @@
-## 1.1.4
+## 1.1.4 (2017-08-18)
 
 * Add a small optimization, if the object doesn't contain any state variable, see #31
 * Fix potential `ClassCastException`, see #30
