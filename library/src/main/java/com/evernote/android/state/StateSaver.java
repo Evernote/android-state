@@ -35,7 +35,7 @@ public final class StateSaver {
     private static Injector getInjector(Class<?> cls)
             throws IllegalAccessException, InstantiationException {
         Injector injector = INJECTORS.get(cls);
-        if (injector != null || INJECTORS.contains(cls)) {
+        if (injector != null || INJECTORS.containsKey(cls)) {
             return injector;
         }
         String clsName = cls.getName();
