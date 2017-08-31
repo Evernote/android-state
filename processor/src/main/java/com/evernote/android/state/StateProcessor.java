@@ -58,6 +58,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -337,8 +338,17 @@ public class StateProcessor extends AbstractProcessor {
                         }
 
                         if (bundler != null) {
+                            TypeName genericName = bundler.mGenericName;
+                            if (fieldType == FieldType.PROPERTY) {
+                                // maybe Kotlin, double check what the method accepts
+                                TypeMirror parameterType = findParameterType(field);
+                                if (parameterType != null) {
+                                    genericName = ClassName.get(parameterType);
+                                }
+                            }
+
                             restoreMethodBuilder = restoreMethodBuilder.addStatement("target.set$N(HELPER.<$T>get$N(state, $S))", fieldName,
-                                    bundler.mGenericName, mapping, fieldName);
+                                    genericName, mapping, fieldName);
                         } else {
                             InsertedTypeResult insertedType = getInsertedType(field, true);
                             if (insertedType != null) {
@@ -388,7 +398,7 @@ public class StateProcessor extends AbstractProcessor {
                     case NOT_SUPPORTED:
                     default:
                         mMessager.printMessage(Diagnostic.Kind.ERROR, "Field " + field.getSimpleName()
-                            + " must be either non-private or provide a getter and setter method", field);
+                                + " must be either non-private or provide a getter and setter method", field);
                         return true;
                 }
             }
@@ -531,6 +541,37 @@ public class StateProcessor extends AbstractProcessor {
             fieldName = fieldName.substring(1);
         }
         return Character.toUpperCase(fieldName.charAt(0)) + (fieldName.length() > 1 ? fieldName.substring(1) : "");
+    }
+
+    private TypeMirror findParameterType(Element field) {
+        TypeMirror result = findParameterType(field, true);
+        return result != null ? result : findParameterType(field, false);
+    }
+
+    private TypeMirror findParameterType(Element field, boolean ignoreHungarianNotation) {
+        String fieldName = getPropertyFieldName(field, ignoreHungarianNotation);
+        String setterName = "set" + fieldName;
+
+        List<? extends Element> elements = field.getEnclosingElement().getEnclosedElements();
+
+        for (Element element : elements) {
+            if (element.getKind() != ElementKind.METHOD || !(element instanceof ExecutableElement)) {
+                continue;
+            }
+
+            String elementName = element.getSimpleName().toString();
+
+            if (setterName.equals(elementName) && !element.getModifiers().contains(Modifier.PRIVATE)) {
+                List<? extends VariableElement> parameters = ((ExecutableElement) element).getParameters();
+                if (parameters == null || parameters.isEmpty()) {
+                    continue;
+                }
+                VariableElement variableElement = parameters.get(0);
+                return variableElement.asType();
+            }
+        }
+
+        return null;
     }
 
     private FieldType getFieldType(Element field, boolean ignoreHungarianNotation) {

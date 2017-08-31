@@ -162,4 +162,33 @@ class TestKotlinBundling {
         assertThat(javaGenericSerializable.genericSerializable as Any).isNotNull()
         assertThat(kotlinGenericSerializable.genericSerializable as Any).isNotNull()
     }
+
+    @Test
+    fun testWithNoneConcreteType() {
+        val item = MyClass()
+
+        assertThat(item.wrapped.content).isEqualTo(42)
+        assertThat(item.wrappedGeneric.content).isEqualTo(42)
+
+        val bundle = Bundle()
+        StateSaver.saveInstanceState(item, bundle)
+
+        item.wrapped = Wrapper(10)
+        item.wrappedGeneric = Wrapper(10)
+
+        StateSaver.restoreInstanceState(item, bundle)
+        assertThat(item.wrapped.content).isEqualTo(42)
+        assertThat(item.wrappedGeneric.content).isEqualTo(42)
+
+        item.wrapped = Wrapper(10)
+        item.wrappedGeneric = Wrapper(10)
+        StateSaver.saveInstanceState(item, bundle)
+
+        item.wrapped = Wrapper(42)
+        item.wrappedGeneric = Wrapper(42)
+
+        StateSaver.restoreInstanceState(item, bundle)
+        assertThat(item.wrapped.content).isEqualTo(10)
+        assertThat(item.wrappedGeneric.content).isEqualTo(10)
+    }
 }

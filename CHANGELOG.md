@@ -1,3 +1,7 @@
+## 1.1.5 (2017-08-31)
+
+* Handle generics in bundlers properly, see #32
+
 ## 1.1.4 (2017-08-18)
 
 * Add a small optimization, if the object doesn't contain any state variable, see #31
