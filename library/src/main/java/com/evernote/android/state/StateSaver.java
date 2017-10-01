@@ -32,16 +32,19 @@ public final class StateSaver {
 
     private static final Map<Class<?>, Injector> INJECTORS = new LinkedHashMap<>();
 
-    private static Injector getInjector(Class<?> cls)
+    @Nullable
+    private static Injector getInjector(@NonNull Class<?> cls)
             throws IllegalAccessException, InstantiationException {
-        Injector injector = INJECTORS.get(cls);
-        if (injector != null || INJECTORS.containsKey(cls)) {
-            return injector;
+        if (INJECTORS.containsKey(cls)) {
+            return INJECTORS.get(cls);
         }
+
         String clsName = cls.getName();
         if (clsName.startsWith(ANDROID_PREFIX) || clsName.startsWith(JAVA_PREFIX)) {
             return null;
         }
+
+        Injector injector;
         try {
             Class<?> injectorClass = Class.forName(clsName + SUFFIX);
             injector = (Injector) injectorClass.newInstance();
@@ -53,7 +56,8 @@ public final class StateSaver {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Injector> T safeGet(Object target, Injector nop) {
+    @NonNull
+    private static <T extends Injector> T safeGet(@NonNull Object target, @NonNull Injector nop) {
         try {
             Class<?> targetClass = target.getClass();
             Injector injector = getInjector(targetClass);
