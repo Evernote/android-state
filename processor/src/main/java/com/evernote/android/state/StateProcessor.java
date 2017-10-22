@@ -464,7 +464,9 @@ public class StateProcessor extends AbstractProcessor {
             return true;
 
         } catch (Exception e) {
-            mMessager.printMessage(Diagnostic.Kind.ERROR, "Couldn't generate classes");
+            mMessager.printMessage(Diagnostic.Kind.ERROR, "Couldn't generate classes " + javaFile.packageName + '.' + javaFile.typeSpec.name);
+            e.printStackTrace();
+
             if (filerSourceFile != null) {
                 filerSourceFile.delete();
             }
