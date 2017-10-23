@@ -28,8 +28,10 @@ import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import com.squareup.javapoet.WildcardTypeName;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.io.Writer;
 import java.lang.reflect.Field;
@@ -41,7 +43,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -918,14 +919,19 @@ public class StateProcessor extends AbstractProcessor {
     }
 
     private String getLicenseHeader() throws IOException {
-        if (mLicenseHeader == null) {
+        if (mLicenseHeader == null || mLicenseHeader.isEmpty()) {
             synchronized (this) {
-                if (mLicenseHeader == null) {
-                    try (InputStream inputStream = getClass().getResourceAsStream("/license.txt");
-                         Scanner scanner = new Scanner(inputStream)) {
-
-                        scanner.useDelimiter("\\A");
-                        mLicenseHeader = scanner.next();
+                if (mLicenseHeader == null || mLicenseHeader.isEmpty()) {
+                    try (InputStream inputStream = getClass().getResourceAsStream("/license.txt"); BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                        StringBuilder builder = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            builder.append(line).append('\n');
+                        }
+                        mLicenseHeader = builder.toString();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        mMessager.printMessage(Diagnostic.Kind.WARNING, "Couldn't read the license file");
                     }
                 }
             }
