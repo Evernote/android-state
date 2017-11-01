@@ -2,6 +2,10 @@
 
 * Add the option to automatically save the instance state of all activities and fragments from the support library
 
+## 1.1.6 (2017-11-01)
+
+* Don't crash when the license header file cannot be read, see #35
+
 ## 1.1.5 (2017-08-31)
 
 * Handle generics in bundlers properly, see #32
