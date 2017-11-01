@@ -1,3 +1,7 @@
+## 1.1.6 (2017-11-01)
+
+* Don't crash when the license header file cannot be read, see #35
+
 ## 1.1.5 (2017-08-31)
 
 * Handle generics in bundlers properly, see #32
