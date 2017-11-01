@@ -10,17 +10,19 @@
  *******************************************************************************/
 package com.evernote.android.state.demo;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 import com.evernote.android.state.State;
 import com.evernote.android.state.StateReflection;
-import com.evernote.android.state.StateSaver;
 
 /**
  * @author rwondratschek
  */
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
 
     @State
     private int mTest1;
@@ -32,15 +34,21 @@ public class MainActivity extends Activity {
     public int test3;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        StateSaver.restoreInstanceState(this, savedInstanceState);
+        mTest1++;
+        test2++;
+        test3++;
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().add(new TestFragment(), "Tag").commit();
+        }
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        StateSaver.saveInstanceState(this, outState);
+    protected void onResume() {
+        super.onResume();
+        Log.i("MainActivity", "onResume mTest1=" + mTest1 + " test2=" + test2 + " test3=" + test3);
     }
 
     public int getTest1() {
@@ -49,5 +57,23 @@ public class MainActivity extends Activity {
 
     public void setTest1(int test) {
         mTest1 = test;
+    }
+
+    public static final class TestFragment extends Fragment {
+
+        @State
+        public int test;
+
+        @Override
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            test++;
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            Log.i("TestFragment", "onResume test=" + test);
+        }
     }
 }

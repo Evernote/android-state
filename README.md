@@ -45,6 +45,17 @@ public class MainActivity extends Activity {
 
 ## Advanced
 
+You can automatically save the instance state of all activities and fragments from the support library with the following method. This saves you the `StateSaver.saveInstanceState(this, outState);` and `StateSaver.restoreInstanceState(this, savedInstanceState);` calls and you only need to annotate your fields.
+```
+public class App extends Application {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        StateSaver.setEnabledForAllActivitiesAndSupportFragments(this, true);
+    }
+}
+```
+
 You can also save state in a `View` class.
 
 ```java

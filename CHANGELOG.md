@@ -1,3 +1,7 @@
+## 1.2.0
+
+* Add the option to automatically save the instance state of all activities and fragments from the support library
+
 ## 1.1.5 (2017-08-31)
 
 * Handle generics in bundlers properly, see #32

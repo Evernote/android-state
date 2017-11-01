@@ -11,6 +11,7 @@
  *******************************************************************************/
 package com.evernote.android.state;
 
+import android.app.Application;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -117,6 +118,28 @@ public final class StateSaver {
             return injector.restore(target, state);
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Turns automatic instance saving on or off for all activities and fragments from the support library. This avoids
+     * manual calls of {@link #saveInstanceState(Object, Bundle)} and {@link #restoreInstanceState(Object, Bundle)}, instead
+     * the library is doing this automatically for you. It's still necessary to annotate fields with {@link State}, though.
+     * <br>
+     * <br>
+     * The best place to turn on this feature is in your {@link Application#onCreate()} method.
+     *
+     * @param application Your application instance.
+     * @param enabled Whether this feature should be enabled.
+     */
+    public static void setEnabledForAllActivitiesAndSupportFragments(@NonNull Application application, boolean enabled) {
+        if (AndroidLifecycleCallbacks.INSTANCE.mEnabled != enabled) {
+            if (enabled) {
+                application.registerActivityLifecycleCallbacks(AndroidLifecycleCallbacks.INSTANCE);
+            } else {
+                application.unregisterActivityLifecycleCallbacks(AndroidLifecycleCallbacks.INSTANCE);
+            }
+            AndroidLifecycleCallbacks.INSTANCE.mEnabled = enabled;
         }
     }
 
