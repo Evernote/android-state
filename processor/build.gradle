@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'com.github.ben-manes.versions'
 apply from: "$rootDir/gradle/gradle-quality.gradle"
 
@@ -10,16 +10,16 @@ archivesBaseName = 'android-state-processor'
 compileJava.dependsOn ":library:bundleRelease"
 
 dependencies {
-    compile 'com.squareup:javapoet:1.8.0'
+    implementation 'com.squareup:javapoet:1.8.0'
 
-    compile 'com.google.auto.service:auto-service:1.0-rc2'
-    compile 'com.google.android:android:4.1.1.4'
+    implementation 'com.google.auto.service:auto-service:1.0-rc2'
+    implementation 'com.google.android:android:4.1.1.4'
 
-    compile files('../library/build/intermediates/bundles/default/classes.jar')
+    implementation files('../library/build/intermediates/bundles/release/classes.jar')
 
-    testCompile "junit:junit:$junitVersion"
-    testCompile 'com.google.testing.compile:compile-testing:0.10'
-    testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+    testImplementation "junit:junit:$junitVersion"
+    testImplementation 'com.google.testing.compile:compile-testing:0.10'
+    testImplementation files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 
 jar {

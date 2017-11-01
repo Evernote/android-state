@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'kotlin'
 apply from: "$rootDir/gradle/gradle-quality.gradle"
 
@@ -9,20 +9,20 @@ targetCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
     // Lint dependencies
-    compile "com.android.tools.lint:lint-api:$lintVersion"
-    compile "com.android.tools.lint:lint-checks:$lintVersion"
+    compileOnly "com.android.tools.lint:lint-api:$lintVersion"
+    compileOnly "com.android.tools.lint:lint-checks:$lintVersion"
 
     // Kotlin
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    compile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
 
-    testCompile "junit:junit:$junitVersion"
-    testCompile "org.assertj:assertj-core:$assertjVersion"
+    testImplementation "junit:junit:$junitVersion"
+    testImplementation "org.assertj:assertj-core:$assertjVersion"
 
     // Lint test dependencies
-    testCompile "com.android.tools.lint:lint:$lintVersion"
-    testCompile "com.android.tools.lint:lint-tests:$lintVersion"
-    testCompile "com.android.tools:testutils:$lintVersion"
+    testImplementation "com.android.tools.lint:lint:$lintVersion"
+    testImplementation "com.android.tools.lint:lint-tests:$lintVersion"
+    testImplementation "com.android.tools:testutils:$lintVersion"
 }
 
 jar {
@@ -42,12 +42,4 @@ jar {
             java.srcDirs += 'src/test/kotlin'
         }
     }
-}
-
-configurations {
-    lintChecks
-}
-
-dependencies {
-    lintChecks files(jar)
 }

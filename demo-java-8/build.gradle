@@ -2,10 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.github.ben-manes.versions'
 apply from: "$rootDir/gradle/gradle-quality.gradle"
 
-if (rootProject.ext.useRetroLambda) {
-    apply plugin: 'me.tatarka.retrolambda'
-}
-
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -18,11 +14,6 @@ android {
 
         versionName project.VERSION_NAME
         versionCode Integer.parseInt(project.VERSION_CODE)
-
-        jackOptions {
-            enabled !rootProject.ext.useRetroLambda
-            additionalParameters("jack.incremental" : "true")
-        }
     }
 
     buildTypes {
@@ -58,14 +49,14 @@ android {
 }
 
 dependencies {
-    compile project(':library')
+    implementation project(':library')
     annotationProcessor project(':processor')
-    compile "com.android.support:appcompat-v7:$supportLibVersion"
+    implementation "com.android.support:appcompat-v7:$supportLibVersion"
 
-    testCompile "junit:junit:$junitVersion"
-    testCompile 'org.assertj:assertj-core:1.7.1'
-    testCompile 'org.robolectric:robolectric:3.2.2'
-    testCompile 'org.robolectric:android-all:6.0.0_r1-robolectric-0'
+    testImplementation "junit:junit:$junitVersion"
+    testImplementation 'org.assertj:assertj-core:1.7.1'
+    testImplementation 'org.robolectric:robolectric:3.2.2'
+    testImplementation 'org.robolectric:android-all:6.0.0_r1-robolectric-0'
 }
 
 uploadArchives.enabled false
