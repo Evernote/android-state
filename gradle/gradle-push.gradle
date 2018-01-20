@@ -42,9 +42,8 @@ if (isAndroidProject()) {
     android.libraryVariants.all { variant ->
         variant.outputs.each { output ->
             File outputFile = output.outputFile
-            if (outputFile != null && outputFile.name.endsWith('.aar') && 'release'.equals(variant.buildType.name)) {
-                def fileName = "${project.archivesBaseName}-${version}.aar"
-                output.outputFileName = new File(outputFile.parent, fileName)
+            if (outputFile != null && outputFile.name.endsWith('.aar') && 'release' == variant.buildType.name) {
+                output.outputFileName = "${project.archivesBaseName}-${version}.aar"
             }
         }
     }
@@ -134,6 +133,58 @@ project.tasks.whenTaskAdded { task ->
 def addSourcesAndJavadocTask(Task uploadTask) {
     if (this.isAndroidProject()) {
         android.libraryVariants.all { variant ->
+            // javadoc jar
+            project.task("${variant.name.capitalize()}Javadoc", type: Javadoc) {
+                failOnError true
+
+                destinationDir = new File("$project.buildDir/javadoc/$variant.name")
+
+                source = variant.javaCompile.source
+
+                ext.androidJar = "${project.android.sdkDirectory}/platforms/${project.android.compileSdkVersion}/android.jar"
+
+                options {
+                    linksOffline("http://d.android.com/reference", "${project.android.sdkDirectory}/docs/reference")
+                    links("http://docs.oracle.com/javase/7/docs/api/")
+                    setMemberLevel(JavadocMemberLevel.PACKAGE)
+                    addStringOption('Xdoclint:none', '-quiet')
+                    docEncoding = 'UTF-8'
+                    encoding = 'UTF-8'
+                    charSet = 'UTF-8'
+                }
+
+                exclude '**/BuildConfig.java'
+                exclude '**/R.java'
+            }
+
+            project.task("generate${variant.name.capitalize()}JavadocJar", type: Jar, dependsOn: "${variant.name.capitalize()}Javadoc") {
+                classifier 'javadoc'
+
+                description = 'Assembles a jar archive containing the generated Javadoc API documentation of $variant.name.'
+
+                destinationDir = new File("$project.buildDir/outputs/jar/")
+
+                exclude '**/BuildConfig.class'
+                exclude '**/R.class'
+
+                from "$project.buildDir/javadoc/$variant.name"
+            }
+
+            // sources jar
+            project.task("generate${variant.name.capitalize()}SourcesJar", type: Jar) {
+                classifier = 'sources'
+
+                description = 'Assembles a jar archive containing the main sources of $variant.name..'
+
+                destinationDir = new File("$project.buildDir/outputs/jar/")
+
+                // exclude generated files
+                exclude '**/BuildConfig.java'
+                exclude '**/R.java'
+
+                from variant.javaCompile.source
+            }
+
             if (variant.name.equalsIgnoreCase('release')) {
                 uploadTask.dependsOn project.tasks.getByName("assemble${variant.name.capitalize()}")
                 uploadTask.dependsOn project.tasks.getByName("generate${variant.name.capitalize()}JavadocJar")
@@ -141,86 +192,28 @@ def addSourcesAndJavadocTask(Task uploadTask) {
             }
         }
     } else {
+        task sourcesJar(type: Jar, dependsOn: classes) {
+            classifier = 'sources'
+            destinationDir = new File("$project.buildDir/outputs/jar/")
+            from sourceSets.main.allSource
+        }
+
+        task javadocJar(type: Jar, dependsOn: javadoc) {
+            classifier = 'javadoc'
+            destinationDir = new File("$project.buildDir/outputs/jar/")
+            from javadoc.destinationDir
+        }
+
+        if (JavaVersion.current().isJava8Compatible()) {
+            allprojects {
+                tasks.withType(Javadoc) {
+                    options.addStringOption('Xdoclint:none', '-quiet')
+                }
+            }
+        }
+
         uploadTask.dependsOn project.tasks.getByName("jar")
         uploadTask.dependsOn project.tasks.getByName("javadocJar")
         uploadTask.dependsOn project.tasks.getByName("sourcesJar")
-    }
-}
-
-if (this.isAndroidProject()) {
-    // javadoc jar
-    android.libraryVariants.all { variant ->
-        project.task("${variant.name.capitalize()}Javadoc", type: Javadoc) {
-            failOnError true
-
-            destinationDir = new File("$project.buildDir/javadoc/$variant.name")
-
-            source = variant.javaCompile.source
-
-            ext.androidJar = "${project.android.sdkDirectory}/platforms/${project.android.compileSdkVersion}/android.jar"
-
-            options {
-                linksOffline("http://d.android.com/reference", "${project.android.sdkDirectory}/docs/reference")
-                links("http://docs.oracle.com/javase/7/docs/api/")
-                setMemberLevel(JavadocMemberLevel.PACKAGE)
-                addStringOption('Xdoclint:none', '-quiet')
-                docEncoding = 'UTF-8'
-                encoding = 'UTF-8'
-                charSet = 'UTF-8'
-            }
-
-            exclude '**/BuildConfig.java'
-            exclude '**/R.java'
-        }
-
-        project.task("generate${variant.name.capitalize()}JavadocJar", type: Jar, dependsOn: "${variant.name.capitalize()}Javadoc") {
-            classifier 'javadoc'
-
-            description = 'Assembles a jar archive containing the generated Javadoc API documentation of $variant.name.'
-
-            destinationDir = new File("$project.buildDir/outputs/jar/")
-
-            exclude '**/BuildConfig.class'
-            exclude '**/R.class'
-
-            from "$project.buildDir/javadoc/$variant.name"
-        }
-    }
-
-    // sources jar
-    android.libraryVariants.all { variant ->
-        project.task("generate${variant.name.capitalize()}SourcesJar", type: Jar) {
-            classifier = 'sources'
-
-            description = 'Assembles a jar archive containing the main sources of $variant.name..'
-
-            destinationDir = new File("$project.buildDir/outputs/jar/")
-
-            // exclude generated files
-            exclude '**/BuildConfig.java'
-            exclude '**/R.java'
-
-            from variant.javaCompile.source
-        }
-    }
-} else {
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
-        destinationDir = new File("$project.buildDir/outputs/jar/")
-        from sourceSets.main.allSource
-    }
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        destinationDir = new File("$project.buildDir/outputs/jar/")
-        from javadoc.destinationDir
-    }
-
-    if (JavaVersion.current().isJava8Compatible()) {
-        allprojects {
-            tasks.withType(Javadoc) {
-                options.addStringOption('Xdoclint:none', '-quiet')
-            }
-        }
     }
 }

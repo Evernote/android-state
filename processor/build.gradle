@@ -10,15 +10,15 @@ archivesBaseName = 'android-state-processor'
 compileJava.dependsOn ":library:bundleRelease"
 
 dependencies {
-    implementation 'com.squareup:javapoet:1.8.0'
+    implementation 'com.squareup:javapoet:1.9.0'
 
-    implementation 'com.google.auto.service:auto-service:1.0-rc2'
+    implementation 'com.google.auto.service:auto-service:1.0-rc4'
     implementation 'com.google.android:android:4.1.1.4'
 
     implementation files('../library/build/intermediates/bundles/release/classes.jar')
 
     testImplementation "junit:junit:$junitVersion"
-    testImplementation 'com.google.testing.compile:compile-testing:0.10'
+    testImplementation 'com.google.testing.compile:compile-testing:0.15'
     testImplementation files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 

@@ -10,7 +10,7 @@ import android.support.v4.app.FragmentManager;
 /**
  * @author rwondratschek
  */
-/*package*/ class AndroidLifecycleCallbacks extends FragmentManager.FragmentLifecycleCallbacks implements ActivityLifecycleCallbacks {
+/*package*/ final class AndroidLifecycleCallbacks extends FragmentManager.FragmentLifecycleCallbacks implements ActivityLifecycleCallbacks {
 
     static final AndroidLifecycleCallbacks INSTANCE = new AndroidLifecycleCallbacks();
 
