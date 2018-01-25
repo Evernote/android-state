@@ -8,22 +8,23 @@
  * Contributors:
  *    Ralf Wondratschek - initial version
  *******************************************************************************/
-package com.evernote.android.state.lint
+package com.evernote.android.state.lint;
 
-import android.app.Activity
-import android.os.Bundle
-import com.evernote.android.state.StateSaver
+import android.app.Activity;
+import android.os.Bundle;
+import com.evernote.android.state.StateSaver;
 
 /**
  * @author rwondratschek
  */
-class InvalidActivityNoSaveKt : Activity() {
-    override fun onCreate(savedInstanceState: Bundle) {
-        super.onCreate(savedInstanceState)
-        StateSaver.restoreInstanceState(this, savedInstanceState)
+public class ValidActivityOtherMethod extends Activity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        restoreInstanceState();
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
+    private void restoreInstanceState() {
+
     }
 }

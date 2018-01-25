@@ -17,13 +17,18 @@ import com.evernote.android.state.StateSaver
 /**
  * @author rwondratschek
  */
-class InvalidActivityNoSaveKt : Activity() {
-    override fun onCreate(savedInstanceState: Bundle) {
+class InvalidActivityOtherMethodKt : Activity() {
+    protected override fun onCreate(savedInstanceState: Bundle) {
         super.onCreate(savedInstanceState)
-        StateSaver.restoreInstanceState(this, savedInstanceState)
+        restoreInstanceState()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
+    protected override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        StateSaver.saveInstanceState(this, outState)
+    }
+
+    private fun restoreInstanceState() {
+
     }
 }

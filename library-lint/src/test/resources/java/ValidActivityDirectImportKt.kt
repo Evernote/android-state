@@ -12,18 +12,20 @@ package com.evernote.android.state.lint
 
 import android.app.Activity
 import android.os.Bundle
-import com.evernote.android.state.StateSaver
+import com.evernote.android.state.StateSaver.saveInstanceState
+import com.evernote.android.state.StateSaver.restoreInstanceState
 
 /**
  * @author rwondratschek
  */
-class InvalidActivityNoSaveKt : Activity() {
-    override fun onCreate(savedInstanceState: Bundle) {
+class ValidActivityDirectImportKt : Activity() {
+    protected override fun onCreate(savedInstanceState: Bundle) {
         super.onCreate(savedInstanceState)
-        StateSaver.restoreInstanceState(this, savedInstanceState)
+        restoreInstanceState(this, savedInstanceState)
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
+    protected override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        saveInstanceState(this, outState)
     }
 }
