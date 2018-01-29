@@ -1,4 +1,4 @@
-package com.evernote.android.test.data;
+package com.evernote.android.state.test;
 
 import android.support.annotation.Keep;
 

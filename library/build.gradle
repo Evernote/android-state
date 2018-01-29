@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'de.mobilej.unmock'
 apply from: "$rootDir/gradle/gradle-quality.gradle"
 
@@ -57,9 +58,10 @@ dependencies {
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.assertj:assertj-core:$assertjVersion"
     testImplementation "com.nhaarman:mockito-kotlin-kt1.1:$kotlinMockitoVersion"
-    testImplementation "org.robolectric:robolectric:$robolectricVersion"
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+
+    kaptTest project(':processor')
 
     //noinspection GradleDependency
     unmock 'org.robolectric:android-all:4.3_r2-robolectric-0'

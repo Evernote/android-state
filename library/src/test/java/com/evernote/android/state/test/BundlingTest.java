@@ -12,17 +12,15 @@ package com.evernote.android.state.test;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.test.mock.MockContext;
 
 import com.evernote.android.state.StateSaver;
 
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 
@@ -31,10 +29,8 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 /**
  * @author rwondratschek
  */
-@RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
 @FixMethodOrder(MethodSorters.JVM)
-public class TestBundling {
+public class BundlingTest {
 
     private Bundle mBundle;
 
@@ -80,7 +76,8 @@ public class TestBundling {
 
     @Test
     public void testView() {
-        TestView testView = new TestView(RuntimeEnvironment.application);
+        MockContext context = Mockito.mock(MockContext.class);
+        TestView testView = new TestView(context);
         Parcelable state = testView.onSaveInstanceState();
 
         testView.mState = 5;
@@ -89,7 +86,7 @@ public class TestBundling {
 
         assertThat(testView.mState).isEqualTo(0);
 
-        TestView.InnerView innerView = new TestView.InnerView(RuntimeEnvironment.application);
+        TestView.InnerView innerView = new TestView.InnerView(context);
         state = innerView.onSaveInstanceState();
 
         innerView.mState = 5;

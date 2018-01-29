@@ -8,29 +8,24 @@
  * Contributors:
  *    Ralf Wondratschek
  *******************************************************************************/
+@file:Suppress("UsePropertyAccessSyntax")
+
 package com.evernote.android.state.test
 
 import android.os.Bundle
 import com.evernote.android.state.StateSaver
-import com.evernote.android.test.data.GenericSerializable
-import com.evernote.android.test.data.TestJavaGenericSerializable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.FixMethodOrder
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 /**
  * Copyright 2017 Evernote Corporation. All rights reserved.
  *
  * Created by rwondratschek on 2/13/17.
  */
-@RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
 @FixMethodOrder(MethodSorters.JVM)
-class TestKotlinBundling {
+class KotlinBundlingTest {
 
     @Test
     fun testKotlinList() {
@@ -54,7 +49,7 @@ class TestKotlinBundling {
 
     @Test
     fun testJavaList() {
-        val kotlinList = TestJavaList()
+        val kotlinList = com.evernote.android.state.test.TestJavaList()
         assertThat(kotlinList.emptyList).isEmpty()
         assertThat(kotlinList.stringList).isNotEmpty()
         assertThat(kotlinList.parcelableList[0]).isEqualTo(TestTypes.ParcelableImpl(1))

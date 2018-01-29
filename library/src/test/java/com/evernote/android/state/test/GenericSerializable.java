@@ -1,4 +1,4 @@
-package com.evernote.android.test.data;
+package com.evernote.android.state.test;
 
 import java.io.Serializable;
 
