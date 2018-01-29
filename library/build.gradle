@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.ben-manes.versions'
+apply plugin: 'kotlin-android'
+apply plugin: 'de.mobilej.unmock'
 apply from: "$rootDir/gradle/gradle-quality.gradle"
 
 archivesBaseName = 'android-state'
@@ -28,11 +30,39 @@ android {
     lintOptions {
         abortOnError true
     }
+
+    sourceSets {
+        //main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/test/kotlin'
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+        unitTests.includeAndroidResources = true
+        unitTests.all {
+            testLogging {
+                events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+            }
+        }
+    }
 }
 
 dependencies {
     implementation "com.android.support:support-fragment:$supportLibVersion"
     lintChecks project(':library-lint')
+
+    testImplementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+
+    testImplementation "junit:junit:$junitVersion"
+    testImplementation "org.assertj:assertj-core:$assertjVersion"
+    testImplementation "com.nhaarman:mockito-kotlin-kt1.1:$kotlinMockitoVersion"
+    testImplementation "org.robolectric:robolectric:$robolectricVersion"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+
+    //noinspection GradleDependency
+    unmock 'org.robolectric:android-all:4.3_r2-robolectric-0'
 }
 
 apply from: "$rootDir/gradle/gradle-push.gradle"

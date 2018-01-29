@@ -9,6 +9,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.1.0-alpha09'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath 'de.mobilej.unmock:UnMockPlugin:0.6.4'
     }
 }
 
@@ -36,9 +37,17 @@ ext {
     assertjVersion = '3.6.2'
     lintVersion = '26.1.0-alpha09'
     robolectricVersion = '3.6.1'
+    kotlinMockitoVersion = '1.5.0'
 }
 
 task wrapper(type: Wrapper) {
     gradleVersion = '4.5'
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+}
+
+subprojects { subproject ->
+    // avoids conflicts in test app
+    configurations.all {
+        resolutionStrategy.force "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    }
 }

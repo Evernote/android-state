@@ -15,7 +15,7 @@ dependencies {
     implementation 'com.google.auto.service:auto-service:1.0-rc4'
     implementation 'com.google.android:android:4.1.1.4'
 
-    implementation files('../library/build/intermediates/bundles/release/classes.jar')
+    implementation files('../library/build/intermediates/packaged-classes/release/classes.jar')
 
     testImplementation "junit:junit:$junitVersion"
     testImplementation 'com.google.testing.compile:compile-testing:0.15'

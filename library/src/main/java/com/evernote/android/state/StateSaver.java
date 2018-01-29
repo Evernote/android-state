@@ -19,7 +19,6 @@ import android.support.annotation.Nullable;
 import android.view.View;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * Entry point to save and restore objects.
@@ -31,41 +30,7 @@ public final class StateSaver {
     public static final String ANDROID_PREFIX = "android.";
     public static final String JAVA_PREFIX = "java.";
 
-    private static final Map<Class<?>, Injector> INJECTORS = new LinkedHashMap<>();
-
-    private static Injector getInjector(Class<?> cls)
-            throws IllegalAccessException, InstantiationException {
-        Injector injector = INJECTORS.get(cls);
-        if (injector != null || INJECTORS.containsKey(cls)) {
-            return injector;
-        }
-        String clsName = cls.getName();
-        if (clsName.startsWith(ANDROID_PREFIX) || clsName.startsWith(JAVA_PREFIX)) {
-            return null;
-        }
-        try {
-            Class<?> injectorClass = Class.forName(clsName + SUFFIX);
-            injector = (Injector) injectorClass.newInstance();
-        } catch (Exception e) {
-            injector = getInjector(cls.getSuperclass());
-        }
-        INJECTORS.put(cls, injector);
-        return injector;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T extends Injector> T safeGet(Object target, Injector nop) {
-        try {
-            Class<?> targetClass = target.getClass();
-            Injector injector = getInjector(targetClass);
-            if (injector == null) {
-                injector = nop;
-            }
-            return (T) injector;
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to inject state for " + target, e);
-        }
-    }
+    private static final StateSaverImpl IMPL = new StateSaverImpl(new LinkedHashMap<Class<?>, Injector>());
 
     /**
      * Save the given {@code target} in the passed in {@link Bundle}.
@@ -74,8 +39,7 @@ public final class StateSaver {
      * @param state  The object is saved into this bundle.
      */
     public static <T> void saveInstanceState(@NonNull T target, @NonNull Bundle state) {
-        Injector.Object<T> injector = safeGet(target, Injector.Object.DEFAULT);
-        injector.save(target, state);
+        IMPL.saveInstanceState(target, state);
     }
 
     /**
@@ -85,10 +49,7 @@ public final class StateSaver {
      * @param state  The object is being restored from this bundle. Nothing is restored if the argument is {@code null}.
      */
     public static <T> void restoreInstanceState(@NonNull T target, @Nullable Bundle state) {
-        if (state != null) {
-            Injector.Object<T> injector = safeGet(target, Injector.Object.DEFAULT);
-            injector.restore(target, state);
-        }
+        IMPL.restoreInstanceState(target, state);
     }
 
     /**
@@ -100,8 +61,7 @@ public final class StateSaver {
      */
     @NonNull
     public static <T extends View> Parcelable saveInstanceState(@NonNull T target, @Nullable Parcelable state) {
-        Injector.View<T> injector = safeGet(target, Injector.View.DEFAULT);
-        return injector.save(target, state);
+        return IMPL.saveInstanceState(target, state);
     }
 
     /**
@@ -113,12 +73,7 @@ public final class StateSaver {
      */
     @Nullable
     public static <T extends View> Parcelable restoreInstanceState(@NonNull T target, @Nullable Parcelable state) {
-        if (state != null) {
-            Injector.View<T> injector = safeGet(target, Injector.View.DEFAULT);
-            return injector.restore(target, state);
-        } else {
-            return null;
-        }
+        return IMPL.restoreInstanceState(target, state);
     }
 
     /**
@@ -133,14 +88,7 @@ public final class StateSaver {
      * @param enabled Whether this feature should be enabled.
      */
     public static void setEnabledForAllActivitiesAndSupportFragments(@NonNull Application application, boolean enabled) {
-        if (AndroidLifecycleCallbacks.INSTANCE.mEnabled != enabled) {
-            if (enabled) {
-                application.registerActivityLifecycleCallbacks(AndroidLifecycleCallbacks.INSTANCE);
-            } else {
-                application.unregisterActivityLifecycleCallbacks(AndroidLifecycleCallbacks.INSTANCE);
-            }
-            AndroidLifecycleCallbacks.INSTANCE.mEnabled = enabled;
-        }
+        IMPL.setEnabledForAllActivitiesAndSupportFragments(application, enabled);
     }
 
     private StateSaver() {
