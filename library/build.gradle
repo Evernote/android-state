@@ -64,7 +64,7 @@ dependencies {
     kaptTest project(':processor')
 
     //noinspection GradleDependency
-    unmock 'org.robolectric:android-all:4.3_r2-robolectric-0'
+    unmock rootProject.ext.unmockVersion
 }
 
 apply from: "$rootDir/gradle/gradle-push.gradle"

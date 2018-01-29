@@ -13,16 +13,11 @@ package com.evernote.android.state.test.java8;
 import android.os.Bundle;
 
 import com.evernote.android.state.StateSaver;
-import com.evernote.android.state.demo.java8.TestTypes;
-import com.evernote.android.state.demo.java8.TestTypesProperty;
 
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 
@@ -31,10 +26,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author rwondratschek
  */
-@RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
 @FixMethodOrder(MethodSorters.JVM)
-public class TestJava8Bundling {
+public class Java8BundlingTest {
 
     private Bundle mBundle;
 

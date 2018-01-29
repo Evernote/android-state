@@ -1,5 +1,6 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'com.github.ben-manes.versions'
+apply plugin: 'de.mobilej.unmock'
 apply from: "$rootDir/gradle/gradle-quality.gradle"
 
 android {
@@ -7,8 +8,6 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        applicationId "com.evernote.android.state.demo.java8"
-
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
 
@@ -16,29 +15,17 @@ android {
         versionCode Integer.parseInt(project.VERSION_CODE)
     }
 
-    buildTypes {
-        debug {
-            minifyEnabled false
-            proguardFiles 'proguard.cfg'
-        }
-
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard.cfg'
-            signingConfig signingConfigs.debug
-        }
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    testOptions.unitTests {
-        returnDefaultValues = true
-        all {
+    testOptions {
+        unitTests.returnDefaultValues = true
+        unitTests.includeAndroidResources = true
+        unitTests.all {
             testLogging {
-                events 'failed', 'standardOut', 'standardError'
+                events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
             }
         }
     }
@@ -50,13 +37,13 @@ android {
 
 dependencies {
     implementation project(':library')
-    annotationProcessor project(':processor')
     implementation "com.android.support:appcompat-v7:$supportLibVersion"
 
+    testAnnotationProcessor project(':processor')
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.assertj:assertj-core:$assertjVersion"
-    testImplementation "org.robolectric:robolectric:$robolectricVersion"
-    testImplementation 'org.robolectric:android-all:8.1.0-robolectric-r4458339'
+
+    unmock rootProject.ext.unmockVersion
 }
 
 uploadArchives.enabled false

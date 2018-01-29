@@ -1,4 +1,4 @@
-package com.evernote.android.state.demo.java8;
+package com.evernote.android.state.test.java8;
 
 import android.os.Bundle;
 import android.os.Parcel;
