@@ -96,7 +96,7 @@ class NonMatchingStateSaverDetectorTest : AbstractDetectorTest() {
     fun testInvalidActivityNoRestoreDirectImport() {
         assertThat(lintFiles(stateSaverJava, getTestFile("InvalidActivityNoRestoreDirectImport.java"))).isEqualTo(
             """
-            InvalidActivityNoRestoreDirectImport.java:29: Warning: StateSaver calls should always occur in pairs. StateSaver.saveInstanceState() should always have a matching call to StateSaver.restoreInstanceState(). [NonMatchingStateSaverCalls]
+            InvalidActivityNoRestoreDirectImport.java:30: Warning: StateSaver calls should always occur in pairs. StateSaver.saveInstanceState() should always have a matching call to StateSaver.restoreInstanceState(). [NonMatchingStateSaverCalls]
                     saveInstanceState(this, outState);
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             0 errors, 1 warnings

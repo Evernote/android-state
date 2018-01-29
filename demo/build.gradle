@@ -18,50 +18,15 @@ android {
         versionCode Integer.parseInt(project.VERSION_CODE)
     }
 
-    buildTypes {
-        debug {
-            minifyEnabled false
-            proguardFiles 'proguard.cfg'
-        }
-
-        proguard.initWith(buildTypes.debug)
-        proguard {
-            matchingFallbacks = ['debug', 'release']
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard.cfg'
-        }
-
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard.cfg'
-            signingConfig signingConfigs.debug
-        }
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
     sourceSets {
-        main {
-            java.srcDirs += 'src/main/kotlin'
-        }
-        test {
-            java.srcDirs += 'src/test/kotlin'
-        }
-        androidTest {
-            java.srcDirs += 'src/androidTest/kotlin'
-        }
-    }
-
-    testOptions.unitTests {
-        returnDefaultValues = true
-        all {
-            testLogging {
-                events 'failed', 'standardOut', 'standardError'
-            }
-        }
+        main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/test/kotlin'
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
     }
 
     lintOptions {
@@ -70,17 +35,11 @@ android {
 }
 
 dependencies {
-    api project(':library')
+    implementation project(':library')
     kapt project(':processor')
     implementation "com.android.support:appcompat-v7:$supportLibVersion"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-
-    testImplementation "junit:junit:$junitVersion"
-    testImplementation "org.assertj:assertj-core:$assertjVersion"
-    testImplementation "org.robolectric:robolectric:$robolectricVersion"
-    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
 }
 
 uploadArchives.enabled false
