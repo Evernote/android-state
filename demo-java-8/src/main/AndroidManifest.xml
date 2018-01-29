@@ -1,1 +1,13 @@
-<manifest package="com.evernote.android.state.demo.java8"/>
+<manifest
+    package="com.evernote.android.state.demo.java8"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="Demo"
+        android:theme="@android:style/Theme.DeviceDefault"
+        tools:ignore="GoogleAppIndexingWarning,UnusedAttribute"/>
+</manifest>

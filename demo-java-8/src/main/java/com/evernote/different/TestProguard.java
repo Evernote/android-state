@@ -1,4 +1,5 @@
-package com.evernote.android.state.test;
+package com.evernote.different;
+// different package to avoid clash with Proguard rules
 
 import android.support.annotation.Keep;
 
@@ -9,7 +10,6 @@ import com.evernote.android.state.StateReflection;
  * @author rwondratschek
  */
 public class TestProguard {
-    // different package to avoid clash with Proguard rules
 
     @State
     public int test1;

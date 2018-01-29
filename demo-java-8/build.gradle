@@ -1,4 +1,4 @@
-apply plugin: 'com.android.library'
+apply plugin: 'com.android.application'
 apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'de.mobilej.unmock'
 apply from: "$rootDir/gradle/gradle-quality.gradle"
@@ -8,11 +8,15 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
+        applicationId "com.evernote.android.state.demo.java8"
+
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
 
         versionName project.VERSION_NAME
         versionCode Integer.parseInt(project.VERSION_CODE)
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
@@ -30,6 +34,18 @@ android {
         }
     }
 
+    buildTypes {
+        debug {
+            minifyEnabled true
+            testProguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard.cfg'
+        }
+
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard.cfg'
+        }
+    }
+
     lintOptions {
         abortOnError true
     }
@@ -37,9 +53,16 @@ android {
 
 dependencies {
     implementation project(':library')
+    annotationProcessor project(':processor')
+
     implementation "com.android.support:appcompat-v7:$supportLibVersion"
 
-    testAnnotationProcessor project(':processor')
+    androidTestImplementation "com.android.support:support-annotations:$supportLibVersion"
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test:rules:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    androidTestImplementation 'com.squareup.assertj:assertj-android:1.1.1'
+
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.assertj:assertj-core:$assertjVersion"
 
