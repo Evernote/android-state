@@ -1,5 +1,6 @@
 package com.evernote.android.state.test
 
+import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -82,7 +83,14 @@ class GlobalStateSaverTest {
     private val activity: MyActivity
         get() {
             return if (Looper.getMainLooper() == Looper.myLooper()) {
-                ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).first { it is MyActivity } as MyActivity
+                var result: Activity? = null
+                for (i in 1..4) {
+                    result = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).firstOrNull { it is MyActivity }
+                    if (result == null) {
+                        Thread.sleep(500)
+                    }
+                }
+                result as MyActivity
             } else {
                 val latch = CountDownLatch(1)
                 lateinit var result: MyActivity
