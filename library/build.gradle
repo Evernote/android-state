@@ -21,6 +21,8 @@ android {
         versionCode Integer.parseInt(project.VERSION_CODE)
 
         consumerProguardFiles 'proguard.cfg'
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
@@ -62,6 +64,15 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
 
     kaptTest project(':processor')
+
+    androidTestImplementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    androidTestImplementation "com.android.support:support-annotations:$supportLibVersion"
+    androidTestImplementation "com.android.support.test:runner:$testRuleVersion"
+    androidTestImplementation "com.android.support.test:rules:$testRuleVersion"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
+    androidTestImplementation "com.squareup.assertj:assertj-android:$assertjAndroidVersion"
+
+    kaptAndroidTest project(':processor')
 
     //noinspection GradleDependency
     unmock rootProject.ext.unmockVersion

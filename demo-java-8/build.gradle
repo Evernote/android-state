@@ -58,10 +58,10 @@ dependencies {
     implementation "com.android.support:appcompat-v7:$supportLibVersion"
 
     androidTestImplementation "com.android.support:support-annotations:$supportLibVersion"
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test:rules:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    androidTestImplementation 'com.squareup.assertj:assertj-android:1.1.1'
+    androidTestImplementation "com.android.support.test:runner:$testRuleVersion"
+    androidTestImplementation "com.android.support.test:rules:testRuleVersion"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
+    androidTestImplementation "com.squareup.assertj:assertj-android:$assertjAndroidVersion"
 
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.assertj:assertj-core:$assertjVersion"

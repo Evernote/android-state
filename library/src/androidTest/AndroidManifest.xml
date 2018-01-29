@@ -1,0 +1,15 @@
+<manifest
+    package="com.evernote.android.state"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:label="Demo"
+        android:theme="@android:style/Theme.DeviceDefault"
+        tools:ignore="GoogleAppIndexingWarning,UnusedAttribute">
+
+        <activity android:name=".test.MyActivity"/>
+    </application>
+</manifest>
