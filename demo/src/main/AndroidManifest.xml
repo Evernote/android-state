@@ -22,5 +22,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity android:name="com.evernote.android.state.test.lint.LintFailingActivityJava"/>
+        <activity android:name="com.evernote.android.state.test.lint.LintFailingActivityKotlin"/>
     </application>
 </manifest>
