@@ -21,7 +21,33 @@ You can read the [JavaDoc here](https://evernote.github.io/android-state/javadoc
 
 ## Usage
 
-Annotate any field with `@State` and use the `StateSaver` class to save those fields in a Bundle. This works from an `Activity` or `Fragment`, but also from anywhere else in your code. You can save any type which can be saved in a Bundle like the `String`, `Serializable`, and `Parcelable` data structures.
+It's recommended to turn on a global setting in your `Application` class to save and restore the instance state of all activities and fragments from the support library. After that you only need to annotate your fields with `@State` inside of your fragments and activities. You can save any type which can be saved in a `Bundle` like the `String`, `Serializable`, and `Parcelable` data structures.
+
+```java
+public class App extends Application {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        StateSaver.setEnabledForAllActivitiesAndSupportFragments(this, true);
+    }
+}
+
+public class MainActivity extends Activity {
+
+    @State
+    public int mValue;
+
+    // ...
+}
+
+class MainFragment : Fragment() {
+
+    @State
+    var title = "My fragment"
+}
+```
+
+If you want to save the state of any other object or didn't turn on the global setting, then you need to use the `StateSaver` class for manually saving and restoring the instance state.
 
 ```java
 public class MainActivity extends Activity {
@@ -44,17 +70,6 @@ public class MainActivity extends Activity {
 ```
 
 ## Advanced
-
-You can automatically save the instance state of all activities and fragments from the support library with the following method. This saves you the `StateSaver.saveInstanceState(this, outState);` and `StateSaver.restoreInstanceState(this, savedInstanceState);` calls and you only need to annotate your fields.
-```java
-public class App extends Application {
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        StateSaver.setEnabledForAllActivitiesAndSupportFragments(this, true);
-    }
-}
-```
 
 You can also save state in a `View` class.
 
