@@ -168,7 +168,11 @@ public class MappingProvider {
 }
 ```
 
-#### ProGuard
+### Lint
+
+The library comes with Lint rules to verify a correct usage of the library. The lint checks work in Java and Kotlin files.
+
+### ProGuard
 
 This library comes with a ProGuard config. No further steps are required, but all necessary rules can be found [here](library/proguard.cfg).
 
