@@ -1,4 +1,4 @@
-## 1.2.0
+## 1.2.0 (2018-02-02)
 
 * Add the option to automatically save the instance state of all activities and fragments from the support library
 * Support Kotlin in Lint checks
