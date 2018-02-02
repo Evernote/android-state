@@ -86,7 +86,7 @@ class GlobalStateSaverTest {
                 var result: Activity? = null
                 for (i in 1..4) {
                     result = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).firstOrNull { it is MyActivity }
-                    if (result == null) {
+                    if (result !is MyActivity) {
                         Thread.sleep(500)
                     }
                 }
