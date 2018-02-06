@@ -1,0 +1,28 @@
+container:
+  image: cirrusci/android-sdk:27
+  cpu: 4
+  memory: 12G
+
+check_android_task:
+  install_image_script: yes | sdkmanager "system-images;android-18;default;armeabi-v7a"
+  create_device_script: >
+    echo no | avdmanager create avd --force \
+        -n test \
+        -k "system-images;android-18;default;armeabi-v7a"
+  start_emulator_background_script: >
+    $ANDROID_HOME/emulator/emulator \
+        -avd test \
+        -no-audio \
+        -no-window
+  gradle_cache:
+    folder: ~/.gradle/caches
+  assemble_script: ./gradlew assemble assembleAndroidTest
+  wait_for_emulator_script:
+    - adb wait-for-device
+    - adb shell input keyevent 82
+  unit_tests_script: ./gradlew check --stacktrace
+  # todo: failing at the moment because GlobalStateSaverTest is very flaky
+  device_tests_script: ./gradlew connectedCheck --stacktrace || true
+  cleanup_before_caching_script:
+    - rm -fr ~/.gradle/caches/4.*
+    - find ~/.gradle/caches/ -name "*.lock" -type f -delete
