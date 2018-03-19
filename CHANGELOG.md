@@ -1,6 +1,7 @@
 ## 1.2.1
 
 * Fix an issue with kapt where a class cannot be found, see #42
+* Fix problems with the Proguard rules and allow better obfuscation, see #43
 
 ## 1.2.0 (2018-02-02)
 

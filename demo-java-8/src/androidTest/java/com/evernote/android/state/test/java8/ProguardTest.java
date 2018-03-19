@@ -35,11 +35,11 @@ public class ProguardTest {
     @Test
     public void verifyCodeObfuscated() throws Exception {
         TestProguard.class.getDeclaredField("test1"); // test1
-        TestProguard.class.getDeclaredField("test2"); // test2
+        TestProguard.class.getDeclaredField("a"); // test2
         TestProguard.class.getDeclaredField("test3");
         TestProguard.class.getDeclaredMethod("a"); // getTest2()
 
-        TestProguardBundler.class.getDeclaredField("mData2"); // mData2
+        TestProguardBundler.class.getDeclaredField("a"); // mData2
         TestProguardBundler.class.getDeclaredField("mDataReflOtherName");
         TestProguardBundler.class.getDeclaredMethod("a"); // getData2()
     }
