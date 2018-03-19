@@ -11,6 +11,7 @@
 package com.evernote.android.state.test
 
 import com.evernote.android.state.State
+import com.evernote.android.state.StateReflection
 
 /**
  * Copyright 2017 Evernote Corporation. All rights reserved.
@@ -24,4 +25,15 @@ enum class KotlinEnum {
 class TestKotlinEnum {
     @State
     var kotlinEnum = KotlinEnum.LEFT
+
+    @StateReflection
+    private var kotlinEnum1 = KotlinEnum.LEFT
+
+    fun getKotlinEnum1(): KotlinEnum {
+        return kotlinEnum1
+    }
+
+    fun setKotlinEnum1(kotlinEnum: KotlinEnum) {
+        kotlinEnum1 = kotlinEnum
+    }
 }

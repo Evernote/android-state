@@ -282,17 +282,22 @@ public class BundlingTest {
     public void testJavaEnum() {
         TestJavaEnum testJavaEnum = createSavedInstance(TestJavaEnum.class);
         testJavaEnum.mJavaEnum = TestJavaEnum.JavaEnum.RIGHT;
+        testJavaEnum.setJavaEnum1(TestJavaEnum.JavaEnum.RIGHT);
 
         StateSaver.restoreInstanceState(testJavaEnum, mBundle);
         assertThat(testJavaEnum.mJavaEnum).isEqualTo(TestJavaEnum.JavaEnum.LEFT);
+        assertThat(testJavaEnum.getJavaEnum1()).isEqualTo(TestJavaEnum.JavaEnum.LEFT);
 
         testJavaEnum.mJavaEnum = TestJavaEnum.JavaEnum.RIGHT;
+        testJavaEnum.setJavaEnum1(TestJavaEnum.JavaEnum.RIGHT);
 
         StateSaver.saveInstanceState(testJavaEnum, mBundle);
         testJavaEnum.mJavaEnum = TestJavaEnum.JavaEnum.LEFT;
+        testJavaEnum.setJavaEnum1(TestJavaEnum.JavaEnum.LEFT);
 
         StateSaver.restoreInstanceState(testJavaEnum, mBundle);
         assertThat(testJavaEnum.mJavaEnum).isEqualTo(TestJavaEnum.JavaEnum.RIGHT);
+        assertThat(testJavaEnum.getJavaEnum1()).isEqualTo(TestJavaEnum.JavaEnum.RIGHT);
     }
 
     private <T> T createSavedInstance(Class<T> clazz) {
