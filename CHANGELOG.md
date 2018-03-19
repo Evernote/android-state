@@ -1,3 +1,7 @@
+## 1.2.1
+
+* Fix an issue with kapt where a class cannot be found, see #42
+
 ## 1.2.0 (2018-02-02)
 
 * Add the option to automatically save the instance state of all activities and fragments from the support library

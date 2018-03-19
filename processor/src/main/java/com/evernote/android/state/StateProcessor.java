@@ -253,7 +253,11 @@ public class StateProcessor extends AbstractProcessor {
             if (superType == null) {
                 superTypeName = ParameterizedTypeName.get(ClassName.get(isView ? Injector.View.class : Injector.Object.class), genericType);
             } else {
-                superTypeName = ParameterizedTypeName.get(ClassName.bestGuess(eraseGenericIfNecessary(superType).toString() + StateSaver.SUFFIX), genericType);
+                ClassName rawType = ClassName.bestGuess(eraseGenericIfNecessary(superType).toString() + StateSaver.SUFFIX);
+                if (!rawType.toString().equals(rawType.reflectionName())) {
+                    rawType = ClassName.bestGuess(rawType.reflectionName());
+                }
+                superTypeName = ParameterizedTypeName.get(rawType, genericType);
             }
 
             MethodSpec.Builder saveMethodBuilder = MethodSpec.methodBuilder("save")
