@@ -76,7 +76,7 @@ class GlobalStateSaverTest {
                 }
 
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        Thread.sleep(500)
+        Thread.sleep(1000)
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 
@@ -87,7 +87,7 @@ class GlobalStateSaverTest {
                 for (i in 1..4) {
                     result = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).firstOrNull { it is MyActivity }
                     if (result !is MyActivity) {
-                        Thread.sleep(500)
+                        Thread.sleep(1000)
                     }
                 }
                 result as MyActivity
