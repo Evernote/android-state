@@ -89,6 +89,21 @@ public class Java8BundlingTest {
         assertThat(object.getParcelableArrayList()).isNotNull().isNotEmpty().containsExactly(new TestTypes.ParcelableImpl(9));
     }
 
+    @Test
+    public void testNested() {
+        TestNested.Inner1.InnerInner1 object1 = createSavedInstance(TestNested.Inner1.InnerInner1.class);
+        TestNested.Inner2.InnerInner1 object2 = createSavedInstance(TestNested.Inner2.InnerInner1.class);
+
+        object1.test = 5;
+        object2.test = 5;
+
+        StateSaver.restoreInstanceState(object1, mBundle);
+        StateSaver.restoreInstanceState(object2, mBundle);
+
+        assertThat(object1.test).isEqualTo(0);
+        assertThat(object2.test).isEqualTo(0);
+    }
+
     private <T> T createSavedInstance(Class<T> clazz) {
         try {
             T instance = clazz.newInstance();

@@ -19,9 +19,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import java.util.HashMap;
+import java.util.List;
+
+import javax.lang.model.element.Element;
 import javax.tools.JavaFileObject;
 
 import static com.google.testing.compile.CompilationSubject.assertThat;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author rwondratschek
@@ -85,9 +90,16 @@ public class TestProcessor {
                 + "  }\n"
                 + "}\n");
 
-        Compilation compilation = Compiler.javac().withProcessors(new StateProcessor()).compile(javaFileObject);
+        StateProcessor stateProcessor = new StateProcessor();
+
+        Compilation compilation = Compiler.javac().withProcessors(stateProcessor).compile(javaFileObject);
         assertThat(compilation).succeeded();
         assertThat(compilation).generatedSourceFile(getName(className, true)).hasSourceEquivalentTo(expected);
+
+        HashMap<String, List<Element>> map = stateProcessor.getMapGeneratedFileToOriginatingElements();
+
+        assertEquals(map.size(), 1);
+        assertEquals(compilation.generatedSourceFiles().size(), 1);
     }
 
     @Test
@@ -255,10 +267,17 @@ public class TestProcessor {
                 + "  }\n"
                 + "}\n");
 
-        Compilation compilation = Compiler.javac().withProcessors(new StateProcessor()).compile(javaFileObject);
+        StateProcessor stateProcessor = new StateProcessor();
+
+        Compilation compilation = Compiler.javac().withProcessors(stateProcessor).compile(javaFileObject);
         assertThat(compilation).succeeded();
         assertThat(compilation).generatedSourceFile(getName("TestNested$Inner1$InnerInner1", true)).hasSourceEquivalentTo(expected1);
         assertThat(compilation).generatedSourceFile(getName("TestNested$Inner2$InnerInner1", true)).hasSourceEquivalentTo(expected2);
+
+        HashMap<String, List<Element>> map = stateProcessor.getMapGeneratedFileToOriginatingElements();
+
+        assertEquals(map.size(), 7);
+        assertEquals(compilation.generatedSourceFiles().size(), 7);
     }
 
     @Test
