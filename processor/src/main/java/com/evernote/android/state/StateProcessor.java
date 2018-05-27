@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -145,6 +146,8 @@ public class StateProcessor extends AbstractProcessor {
     private Messager mMessager;
 
     private volatile String mLicenseHeader;
+
+    private HashMap<String, List<Element>> mMapGeneratedFileToOriginatingElements = new LinkedHashMap<>();
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -435,12 +438,14 @@ public class StateProcessor extends AbstractProcessor {
                     )
                     .addMethod(saveMethodBuilder.build())
                     .addMethod(restoreMethodBuilder.build())
+                    .addOriginatingElement(classElement)
                     .build();
 
             JavaFile javaFile = JavaFile.builder(packageName, classBuilder).build();
             if (!writeJavaFile(javaFile)) {
                 return true; // failed, stop processor here
             }
+            mMapGeneratedFileToOriginatingElements.put(javaFile.toJavaFileObject().getName(), javaFile.typeSpec.originatingElements);
         }
 
         return true;
@@ -474,6 +479,10 @@ public class StateProcessor extends AbstractProcessor {
 
             return false;
         }
+    }
+
+    public HashMap<String, List<Element>> getMapGeneratedFileToOriginatingElements() {
+        return mMapGeneratedFileToOriginatingElements;
     }
 
     private Map<Element, Set<Element>> getClassElements(Collection<? extends Element> annotatedFields) {

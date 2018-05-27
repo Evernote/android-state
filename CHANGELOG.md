@@ -1,3 +1,7 @@
+## 1.2.2
+
+* Support incremental annotation processing, see #48
+
 ## 1.2.1 (2018-03-18)
 
 * Fix an issue with kapt where a class cannot be found, see #42
