@@ -145,8 +145,6 @@ public class StateProcessor extends AbstractProcessor {
     private Filer mFiler;
     private Messager mMessager;
 
-    private volatile String mLicenseHeader;
-
     private HashMap<String, List<Element>> mMapGeneratedFileToOriginatingElements = new LinkedHashMap<>();
 
     @Override
@@ -368,6 +366,13 @@ public class StateProcessor extends AbstractProcessor {
                     case FIELD_REFLECTION:
                         String reflectionMapping = isPrimitiveMapping(mapping) ? mapping : "";
 
+                        CompatibilityType compatibilityType = getCompatibilityType(field);
+                        InsertedTypeResult insertedType = getInsertedType(field, true);
+                        if (compatibilityType != null && insertedType != null) {
+                            // either serializable or parcelable, this could be a private inner class, so don't use the concrete type
+                            fieldTypeString = compatibilityType.mClass.getName();
+                        }
+
                         saveMethodBuilder = saveMethodBuilder
                                 .beginControlFlow("try")
                                 .addStatement("$T field = target.getClass().getDeclaredField($S)", Field.class, fieldName)
@@ -462,7 +467,7 @@ public class StateProcessor extends AbstractProcessor {
 
             String fileName = javaFile.packageName.isEmpty() ? javaFile.typeSpec.name : javaFile.packageName + "." + javaFile.typeSpec.name;
             List<Element> originatingElements = javaFile.typeSpec.originatingElements;
-            filerSourceFile = mFiler.createSourceFile(fileName, originatingElements.toArray(new Element[originatingElements.size()]));
+            filerSourceFile = mFiler.createSourceFile(fileName, originatingElements.toArray(new Element[0]));
 
             try (Writer writer = filerSourceFile.openWriter()) {
                 writer.write(builder.toString());
@@ -816,6 +821,7 @@ public class StateProcessor extends AbstractProcessor {
         return null;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private boolean isAssignable(Element element, Class<?> clazz) {
         return isAssignable(element.asType(), clazz);
     }

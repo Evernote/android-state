@@ -192,4 +192,26 @@ class KotlinBundlingTest {
         assertThat(item.wrapped.content).isEqualTo(10)
         assertThat(item.wrappedGeneric.content).isEqualTo(10)
     }
+
+    @Test
+    fun testPrivateInnerClass() {
+        val item = TestPrivateInnerClass()
+        assertThat(item.isA).isTrue()
+
+        val bundle = Bundle()
+        StateSaver.saveInstanceState(item, bundle)
+
+        item.setToB()
+
+        StateSaver.restoreInstanceState(item, bundle)
+        assertThat(item.isA).isTrue()
+
+        item.setToB()
+        StateSaver.saveInstanceState(item, bundle)
+
+        item.setToA()
+
+        StateSaver.restoreInstanceState(item, bundle)
+        assertThat(item.isB).isTrue()
+    }
 }

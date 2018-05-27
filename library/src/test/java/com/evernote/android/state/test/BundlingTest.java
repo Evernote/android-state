@@ -300,6 +300,23 @@ public class BundlingTest {
         assertThat(testJavaEnum.getJavaEnum1()).isEqualTo(TestJavaEnum.JavaEnum.RIGHT);
     }
 
+    @Test
+    public void testPrivateInnerClass() {
+        TestPrivateInnerClass testPrivateInnerClass = createSavedInstance(TestPrivateInnerClass.class);
+        testPrivateInnerClass.setToB();
+
+        StateSaver.restoreInstanceState(testPrivateInnerClass, mBundle);
+        assertThat(testPrivateInnerClass.isA()).isTrue();
+
+        testPrivateInnerClass.setToB();
+
+        StateSaver.saveInstanceState(testPrivateInnerClass, mBundle);
+        testPrivateInnerClass.setToA();
+
+        StateSaver.restoreInstanceState(testPrivateInnerClass, mBundle);
+        assertThat(testPrivateInnerClass.isB()).isTrue();
+    }
+
     private <T> T createSavedInstance(Class<T> clazz) {
         try {
             T instance = clazz.newInstance();
