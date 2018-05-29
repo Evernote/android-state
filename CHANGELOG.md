@@ -1,4 +1,4 @@
-## 1.2.2
+## 1.3.0 (2018-05-28)
 
 * Support incremental annotation processing, see #48
 * Omit the type for private inner classes when using reflection, see #44
