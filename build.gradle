@@ -53,5 +53,19 @@ subprojects { subproject ->
     // avoids conflicts in test app
     configurations.all {
         resolutionStrategy.force "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+
+        // Replace deprecated Kotlin JRE dependencies with JDK dependencies
+        resolutionStrategy.dependencySubstitution {
+            all { DependencySubstitution dependency ->
+                if (dependency.requested instanceof ModuleComponentSelector && dependency.requested.group == 'org.jetbrains.kotlin') {
+                    if (dependency.requested.module == 'kotlin-stdlib-jre7') {
+                        dependency.useTarget "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+                    }
+                    if (dependency.requested.module == 'kotlin-stdlib-jre8') {
+                        dependency.useTarget "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+                    }
+                }
+            }
+        }
     }
 }
