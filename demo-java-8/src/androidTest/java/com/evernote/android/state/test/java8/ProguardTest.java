@@ -6,6 +6,7 @@ import android.support.test.runner.AndroidJUnit4;
 import com.evernote.android.state.StateSaver;
 import com.evernote.different.TestProguard;
 import com.evernote.different.TestProguardBundler;
+import com.evernote.different.TestProguardHelper;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,27 +20,29 @@ public class ProguardTest {
     @Test
     public void testProguardRules() {
         TestProguard data = new TestProguard();
-        data.verifyValue(0);
-        data.setValue(1);
+        TestProguardHelper.verifyValue(data, 0);
+        TestProguardHelper.setValue(data, 1);
 
         Bundle bundle = new Bundle();
         StateSaver.saveInstanceState(data, bundle);
 
-        data.setValue(0);
-        data.verifyValue(0);
+        TestProguardHelper.setValue(data, 0);
+        TestProguardHelper.verifyValue(data, 0);
 
         StateSaver.restoreInstanceState(data, bundle);
-        data.verifyValue(1);
+        TestProguardHelper.verifyValue(data, 1);
     }
 
     @Test
     public void verifyCodeObfuscated() throws Exception {
         TestProguard.class.getDeclaredField("test1"); // test1
-        TestProguard.class.getDeclaredField("a"); // test2
+//        TestProguard.class.getDeclaredField("a"); // test2
+        TestProguard.class.getDeclaredField("test2"); // test2
         TestProguard.class.getDeclaredField("test3");
         TestProguard.class.getDeclaredMethod("a"); // getTest2()
 
-        TestProguardBundler.class.getDeclaredField("a"); // mData2
+//        TestProguardBundler.class.getDeclaredField("a"); // mData2
+        TestProguardBundler.class.getDeclaredField("mData2"); // mData2
         TestProguardBundler.class.getDeclaredField("mDataReflOtherName");
         TestProguardBundler.class.getDeclaredMethod("a"); // getData2()
     }

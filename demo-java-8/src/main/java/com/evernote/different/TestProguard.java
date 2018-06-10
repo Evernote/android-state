@@ -1,8 +1,6 @@
 package com.evernote.different;
 // different package to avoid clash with Proguard rules
 
-import android.support.annotation.Keep;
-
 import com.evernote.android.state.State;
 import com.evernote.android.state.StateReflection;
 
@@ -28,23 +26,21 @@ public class TestProguard {
         this.test2 = test2;
     }
 
-    @Keep
     public void setValue(int value) {
         test1 = value;
         setTest2(value);
         test3 = value;
     }
 
-    @Keep
     public void verifyValue(int value) {
         if (test1 != value) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("test1 different, expected " + value + ", is " + test1);
         }
         if (getTest2() != value) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("getTest2() different, expected " + value + ", is " + getTest2());
         }
         if (test3 != value) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("test3 different, expected " + value + ", is " + test3);
         }
     }
 }

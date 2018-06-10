@@ -1,3 +1,7 @@
+## 1.3.1
+
+* Avoid obfuscating the class name if the class contains a field annotated with `@State`, see #43
+
 ## 1.3.0 (2018-05-28)
 
 * Support incremental annotation processing, see #48
