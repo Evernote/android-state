@@ -97,6 +97,10 @@ public class TestTypes {
             mInt = in.readInt();
         }
 
+        public boolean isValue(int value) {
+            return mInt == value;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;

@@ -57,6 +57,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -118,6 +119,7 @@ public class StateProcessor extends AbstractProcessor {
     private static final String STATE_REFLECTION_CLASS_NAME = StateReflection.class.getName();
     private static final String OBJECT_CLASS_NAME = Object.class.getName();
     private static final String PARCELABLE_CLASS_NAME = Parcelable.class.getName();
+    private static final String PARCELABLE_ARRAY_CLASS_NAME = Parcelable[].class.getCanonicalName();
     private static final String SERIALIZABLE_CLASS_NAME = Serializable.class.getName();
 
     private static final Set<String> GENERIC_SUPER_TYPES = Collections.unmodifiableSet(new HashSet<String>() {{
@@ -317,6 +319,13 @@ public class StateProcessor extends AbstractProcessor {
 
                 String fieldName = fieldType.getFieldName(field);
 
+                String castedType = null;
+                CompatibilityType compatibilityType = getCompatibilityType(field);
+                if (compatibilityType == CompatibilityType.PARCELABLE_ARRAY && !PARCELABLE_ARRAY_CLASS_NAME.equals(fieldTypeString)) {
+                    mMessager.printMessage(Diagnostic.Kind.NOTE, "Field " + fieldTypeString + " " + PARCELABLE_ARRAY_CLASS_NAME);
+                    castedType = fieldTypeString;
+                }
+
                 BundlerWrapper bundler = bundlers.get(field);
                 if (bundler != null) {
                     staticInitBlock = staticInitBlock.addStatement("BUNDLERS.put($S, new $T())", fieldName, bundler.mBundlerName);
@@ -326,7 +335,11 @@ public class StateProcessor extends AbstractProcessor {
                 switch (fieldType) {
                     case FIELD:
                         saveMethodBuilder = saveMethodBuilder.addStatement("HELPER.put$N(state, $S, target.$N)", mapping, fieldName, fieldName);
-                        restoreMethodBuilder = restoreMethodBuilder.addStatement("target.$N = HELPER.get$N(state, $S)", fieldName, mapping, fieldName);
+                        if (castedType != null) {
+                            restoreMethodBuilder = restoreMethodBuilder.addStatement("target.$N = ($N) HELPER.get$N(state, $S)", fieldName, castedType, mapping, fieldName);
+                        } else {
+                            restoreMethodBuilder = restoreMethodBuilder.addStatement("target.$N = HELPER.get$N(state, $S)", fieldName, mapping, fieldName);
+                        }
                         break;
 
                     case BOOLEAN_PROPERTY:
@@ -356,6 +369,9 @@ public class StateProcessor extends AbstractProcessor {
                             if (insertedType != null) {
                                 restoreMethodBuilder = restoreMethodBuilder.addStatement("target.set$N(HELPER.<$T>get$N(state, $S))",
                                         fieldName, ClassName.get(insertedType.mTypeMirror), mapping, fieldName);
+                            } else if (castedType != null) {
+                                restoreMethodBuilder = restoreMethodBuilder.addStatement("target.set$N(($N) HELPER.get$N(state, $S))",
+                                        fieldName, castedType, mapping, fieldName);
                             } else {
                                 restoreMethodBuilder = restoreMethodBuilder.addStatement("target.set$N(HELPER.get$N(state, $S))",
                                         fieldName, mapping, fieldName);
@@ -366,7 +382,6 @@ public class StateProcessor extends AbstractProcessor {
                     case FIELD_REFLECTION:
                         String reflectionMapping = isPrimitiveMapping(mapping) ? mapping : "";
 
-                        CompatibilityType compatibilityType = getCompatibilityType(field);
                         InsertedTypeResult insertedType = getInsertedType(field, true);
                         if (compatibilityType != null && insertedType != null) {
                             // either serializable or parcelable, this could be a private inner class, so don't use the concrete type
@@ -486,7 +501,7 @@ public class StateProcessor extends AbstractProcessor {
         }
     }
 
-    public HashMap<String, List<Element>> getMapGeneratedFileToOriginatingElements() {
+    /*package*/ HashMap<String, List<Element>> getMapGeneratedFileToOriginatingElements() {
         return mMapGeneratedFileToOriginatingElements;
     }
 
@@ -786,6 +801,7 @@ public class StateProcessor extends AbstractProcessor {
     @SuppressWarnings("unused")
     private enum CompatibilityType {
         PARCELABLE("Parcelable", Parcelable.class, null),
+        PARCELABLE_ARRAY("ParcelableArray", Parcelable[].class, null),
         PARCELABLE_LIST("ParcelableArrayList", ArrayList.class, Parcelable.class),
         SPARSE_PARCELABLE_ARRAY("SparseParcelableArray", SparseArray.class, Parcelable.class),
         SERIALIZABLE("Serializable", Serializable.class, null);
@@ -804,7 +820,13 @@ public class StateProcessor extends AbstractProcessor {
     private CompatibilityType getCompatibilityType(Element field) {
         TypeMirror typeMirror = field.asType();
         for (CompatibilityType compatibilityType : CompatibilityType.values()) {
-            if (compatibilityType.mGenericClass == null) {
+            if (compatibilityType == CompatibilityType.PARCELABLE_ARRAY) {
+                TypeMirror arrayType = getArrayType(field);
+                if (arrayType != null && isAssignable(arrayType, Parcelable.class)) {
+                    return CompatibilityType.PARCELABLE_ARRAY;
+                }
+
+            } else if (compatibilityType.mGenericClass == null) {
                 if (isAssignable(typeMirror, compatibilityType.mClass)) {
                     return compatibilityType;
                 }
@@ -819,6 +841,15 @@ public class StateProcessor extends AbstractProcessor {
             }
         }
         return null;
+    }
+
+    private TypeMirror getArrayType(Element field) {
+        TypeMirror typeMirror = field.asType();
+        if (typeMirror instanceof ArrayType) {
+            return ((ArrayType) typeMirror).getComponentType();
+        } else {
+            return null;
+        }
     }
 
     @SuppressWarnings("SameParameterValue")

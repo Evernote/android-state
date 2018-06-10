@@ -195,8 +195,8 @@ class KotlinBundlingTest {
 
     @Test
     fun testPrivateInnerClass() {
-        val item = TestPrivateInnerClass()
-        assertThat(item.isA).isTrue()
+        val item = TestKotlinPrivateInnerClass()
+        assertThat(item.isA()).isTrue()
 
         val bundle = Bundle()
         StateSaver.saveInstanceState(item, bundle)
@@ -204,7 +204,7 @@ class KotlinBundlingTest {
         item.setToB()
 
         StateSaver.restoreInstanceState(item, bundle)
-        assertThat(item.isA).isTrue()
+        assertThat(item.isA()).isTrue()
 
         item.setToB()
         StateSaver.saveInstanceState(item, bundle)
@@ -212,6 +212,28 @@ class KotlinBundlingTest {
         item.setToA()
 
         StateSaver.restoreInstanceState(item, bundle)
-        assertThat(item.isB).isTrue()
+        assertThat(item.isB()).isTrue()
+    }
+
+    @Test
+    fun testParcelableArray() {
+        val item = TestKotlinParcelableArray()
+        assertThat(item.isValue(0)).isTrue()
+
+        val bundle = Bundle()
+        StateSaver.saveInstanceState(item, bundle)
+
+        item.setToValue(1)
+
+        StateSaver.restoreInstanceState(item, bundle)
+        assertThat(item.isValue(0)).isTrue()
+
+        item.setToValue(1)
+        StateSaver.saveInstanceState(item, bundle)
+
+        item.setToValue(0)
+
+        StateSaver.restoreInstanceState(item, bundle)
+        assertThat(item.isValue(1)).isTrue()
     }
 }

@@ -1,6 +1,7 @@
 ## 1.3.1
 
 * Avoid obfuscating the class name if the class contains a field annotated with `@State`, see #43
+* Don't use the serializable type for parcelable arrays, see #53
 
 ## 1.3.0 (2018-05-28)
 

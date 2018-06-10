@@ -317,6 +317,23 @@ public class BundlingTest {
         assertThat(testPrivateInnerClass.isB()).isTrue();
     }
 
+    @Test
+    public void testParcelableArray() {
+        TestParcelableArray testParcelableArray = createSavedInstance(TestParcelableArray.class);
+        testParcelableArray.setToValue(1);
+
+        StateSaver.restoreInstanceState(testParcelableArray, mBundle);
+        assertThat(testParcelableArray.isValue(0)).isTrue();
+
+        testParcelableArray.setToValue(1);
+
+        StateSaver.saveInstanceState(testParcelableArray, mBundle);
+        testParcelableArray.setToValue(0);
+
+        StateSaver.restoreInstanceState(testParcelableArray, mBundle);
+        assertThat(testParcelableArray.isValue(1)).isTrue();
+    }
+
     private <T> T createSavedInstance(Class<T> clazz) {
         try {
             T instance = clazz.newInstance();
