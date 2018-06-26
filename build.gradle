@@ -1,10 +1,11 @@
 buildscript {
-    ext.kotlinVersion = '1.2.41'
+    ext.kotlinVersion = '1.2.60-eap-7'
     ext.agpVersion = '3.1.1'
 
     repositories {
         google()
         jcenter()
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$agpVersion"
@@ -19,6 +20,7 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     }
 
     tasks.withType(JavaCompile) {
