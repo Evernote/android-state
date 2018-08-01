@@ -111,7 +111,7 @@ public class StateProcessor extends AbstractProcessor {
     private static final Comparator<Element> COMPARATOR = new Comparator<Element>() {
         @Override
         public int compare(Element o1, Element o2) {
-            return o1.asType().toString().compareTo(o2.asType().toString());
+            return o1.getSimpleName().toString().compareTo(o2.getSimpleName().toString());
         }
     };
 
