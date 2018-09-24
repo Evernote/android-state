@@ -869,7 +869,16 @@ public class StateProcessor extends AbstractProcessor {
 
     private TypeMirror eraseGenericIfNecessary(TypeMirror typeMirror) {
         // is there a better way to detect a generic type?
-        return (typeMirror.toString().endsWith(">")) ? mTypeUtils.erasure(typeMirror) : typeMirror;
+        String[] split = typeMirror.toString().split("\\.");
+        boolean hasGeneric = false;
+        for (String className : split) {
+            if (className.endsWith(">")) {
+                hasGeneric = true;
+                break;
+            }
+        }
+
+        return hasGeneric ? mTypeUtils.erasure(typeMirror) : typeMirror;
     }
 
     private TypeMirror eraseCovarianceAndInvariance(TypeMirror typeMirror) {
