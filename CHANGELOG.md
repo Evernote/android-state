@@ -1,3 +1,9 @@
+## 1.4.0 (2018-09-23)
+
+* Migrated dependencies to AndroidX
+* Sort elements by name to make processor deterministic, see #57 (Thanks @DSteve595)
+* Fix compile error with generic inner classes and kapt, see #54 (Thanks @janbina)
+
 ## 1.3.1 (2018-06-10)
 
 * Avoid obfuscating the class name if the class contains a field annotated with `@State`, see #43
