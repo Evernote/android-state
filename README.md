@@ -8,12 +8,12 @@ Download the latest [library](https://search.maven.org/#search%7Cga%7C1%7Ca%3A%2
 
 ```groovy
 dependencies {
-    implementation 'com.evernote:android-state:1.3.1'
+    implementation 'com.evernote:android-state:1.4.0'
     // Java only project
-    annotationProcessor 'com.evernote:android-state-processor:1.3.1'
+    annotationProcessor 'com.evernote:android-state-processor:1.4.0'
 
     // Kotlin with or without Java
-    kapt 'com.evernote:android-state-processor:1.3.1'
+    kapt 'com.evernote:android-state-processor:1.4.0'
 }
 ```
 
