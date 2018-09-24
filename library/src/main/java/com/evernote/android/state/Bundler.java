@@ -12,8 +12,9 @@
 package com.evernote.android.state;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Helper interface to save any object inside a {@link Bundle}.

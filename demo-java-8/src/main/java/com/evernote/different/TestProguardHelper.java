@@ -1,6 +1,6 @@
 package com.evernote.different;
 
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 
 /**
  * @author rwondratschek

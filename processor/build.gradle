@@ -10,7 +10,7 @@ archivesBaseName = 'android-state-processor'
 compileJava.dependsOn ":library:bundleRelease"
 
 dependencies {
-    implementation 'com.squareup:javapoet:1.9.0'
+    implementation 'com.squareup:javapoet:1.11.0'
 
     implementation 'com.google.auto.service:auto-service:1.0-rc4'
     implementation 'com.google.android:android:4.1.1.4'

@@ -55,9 +55,9 @@ dependencies {
     implementation project(':library')
     annotationProcessor project(':processor')
 
-    implementation "com.android.support:appcompat-v7:$supportLibVersion"
+    implementation "androidx.appcompat:appcompat:1.0.0"
 
-    androidTestImplementation "com.android.support:support-annotations:$supportLibVersion"
+    androidTestImplementation "androidx.annotation:annotation:1.0.0"
     androidTestImplementation "com.android.support.test:runner:$testRuleVersion"
     androidTestImplementation "com.android.support.test:rules:testRuleVersion"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"

@@ -14,8 +14,8 @@ package com.evernote.android.state;
 import android.app.Application;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.view.View;
 
 import java.util.Map;

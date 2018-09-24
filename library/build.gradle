@@ -13,6 +13,8 @@ android {
 
     resourcePrefix 'state_'
 
+    useLibrary 'android.test.mock'
+
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
@@ -52,7 +54,7 @@ android {
 }
 
 dependencies {
-    implementation "com.android.support:support-fragment:$supportLibVersion"
+    implementation "androidx.fragment:fragment:1.0.0"
     lintChecks project(':library-lint')
 
     testImplementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
@@ -66,7 +68,7 @@ dependencies {
     kaptTest project(':processor')
 
     androidTestImplementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    androidTestImplementation "com.android.support:support-annotations:$supportLibVersion"
+    androidTestImplementation "androidx.annotation:annotation:1.0.0"
     androidTestImplementation "com.android.support.test:runner:$testRuleVersion"
     androidTestImplementation "com.android.support.test:rules:$testRuleVersion"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
