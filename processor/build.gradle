@@ -7,10 +7,10 @@ targetCompatibility = JavaVersion.VERSION_1_7
 
 archivesBaseName = 'android-state-processor'
 
-compileJava.dependsOn ":library:bundleRelease"
+compileJava.dependsOn ":library:bundleReleaseAar"
 
 dependencies {
-    implementation 'com.squareup:javapoet:1.11.0'
+    implementation 'com.squareup:javapoet:1.11.1'
 
     implementation 'com.google.auto.service:auto-service:1.0-rc4'
     compileOnly 'com.google.android:android:4.1.1.4'

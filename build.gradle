@@ -1,6 +1,6 @@
 buildscript {
-    ext.kotlinVersion = '1.2.70'
-    ext.agpVersion = '3.1.4'
+    ext.kotlinVersion = '1.2.71'
+    ext.agpVersion = '3.2.0'
 
     repositories {
         google()
@@ -31,7 +31,7 @@ ext {
     targetSdkVersion = compileSdkVersion
     minSdkVersion = 14
 
-    buildToolsVersion = '28.0.2'
+    buildToolsVersion = '28.0.3'
 
     junitVersion = '4.12'
     assertjVersion = '3.6.2'
