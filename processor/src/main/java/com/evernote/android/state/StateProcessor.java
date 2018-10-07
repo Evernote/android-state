@@ -10,11 +10,6 @@
  *******************************************************************************/
 package com.evernote.android.state;
 
-import android.os.Bundle;
-import android.os.Parcelable;
-import android.util.SparseArray;
-import android.view.View;
-
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
@@ -115,12 +110,23 @@ public class StateProcessor extends AbstractProcessor {
         }
     };
 
-    private static final String STATE_CLASS_NAME = State.class.getName();
-    private static final String STATE_REFLECTION_CLASS_NAME = StateReflection.class.getName();
+    /*package*/ static final String STATE_SAVER_SUFFIX = "$$StateSaver";
+
+    private static final String STATE_CLASS_NAME = "com.evernote.android.state.State";
+    private static final String STATE_REFLECTION_CLASS_NAME = "com.evernote.android.state.StateReflection";
+    private static final String INJECTOR_VIEW_CLASS_NAME = "com.evernote.android.state.Injector.View";
+    private static final String INJECTOR_OBJECT_CLASS_NAME = "com.evernote.android.state.Injector.Object";
+    private static final String INJECTION_HELPER_CLASS_NAME = "com.evernote.android.state.InjectionHelper";
+
     private static final String OBJECT_CLASS_NAME = Object.class.getName();
-    private static final String PARCELABLE_CLASS_NAME = Parcelable.class.getName();
-    private static final String PARCELABLE_ARRAY_CLASS_NAME = Parcelable[].class.getCanonicalName();
+    private static final String PARCELABLE_CLASS_NAME = "android.os.Parcelable";
+    private static final String PARCELABLE_ARRAY_CLASS_NAME = "android.os.Parcelable[]";
+    private static final String BUNDLE_CLASS_NAME = "android.os.Bundle";
+    private static final String SPARSE_ARRAY_CLASS_NAME = "android.util.SparseArray";
+    private static final String VIEW_CLASS_NAME = "android.view.View";
+    private static final String BUNDLER_CLASS_NAME = "com.evernote.android.state.Bundler";
     private static final String SERIALIZABLE_CLASS_NAME = Serializable.class.getName();
+    private static final String ARRAY_LIST_CLASS_NAME = ArrayList.class.getName();
 
     private static final Set<String> GENERIC_SUPER_TYPES = Collections.unmodifiableSet(new HashSet<String>() {{
         add(PARCELABLE_CLASS_NAME);
@@ -130,7 +136,7 @@ public class StateProcessor extends AbstractProcessor {
     private static final Set<String> GENERIC_SUPER_TYPE_SERIALIZABLE = Collections.singleton(SERIALIZABLE_CLASS_NAME);
 
     private static final Set<String> IGNORED_TYPE_DECLARATIONS = Collections.unmodifiableSet(new HashSet<String>() {{
-        add(Bundle.class.getName());
+        add(BUNDLE_CLASS_NAME);
         add(String.class.getName());
         add(Byte.class.getName());
         add(Short.class.getName());
@@ -161,8 +167,8 @@ public class StateProcessor extends AbstractProcessor {
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> annotations = new HashSet<>();
-        annotations.add(State.class.getName());
-        annotations.add(StateReflection.class.getName());
+        annotations.add(STATE_CLASS_NAME);
+        annotations.add(STATE_REFLECTION_CLASS_NAME);
         return Collections.unmodifiableSet(annotations);
     }
 
@@ -174,8 +180,8 @@ public class StateProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
         final Set<Element> annotatedFields = new HashSet<>();
-        annotatedFields.addAll(env.getElementsAnnotatedWith(State.class));
-        annotatedFields.addAll(env.getElementsAnnotatedWith(StateReflection.class));
+        annotatedFields.addAll(env.getElementsAnnotatedWith(mElementUtils.getTypeElement(STATE_CLASS_NAME)));
+        annotatedFields.addAll(env.getElementsAnnotatedWith(mElementUtils.getTypeElement(STATE_REFLECTION_CLASS_NAME)));
 
         final Map<Element, BundlerWrapper> bundlers = new HashMap<>();
 
@@ -247,16 +253,16 @@ public class StateProcessor extends AbstractProcessor {
             }
 
             final String className = getClassName(classElement);
-            final boolean isView = isAssignable(classElement, View.class);
+            final boolean isView = isAssignable(classElement, VIEW_CLASS_NAME);
 
             final TypeVariableName genericType = TypeVariableName.get("T", TypeName.get(eraseGenericIfNecessary(classElement.asType())));
 
             final TypeName superTypeName;
             final TypeMirror superType = getSuperType(classElement.asType(), allClassElements);
             if (superType == null) {
-                superTypeName = ParameterizedTypeName.get(ClassName.get(isView ? Injector.View.class : Injector.Object.class), genericType);
+                superTypeName = ParameterizedTypeName.get(ClassName.bestGuess(isView ? INJECTOR_VIEW_CLASS_NAME : INJECTOR_OBJECT_CLASS_NAME), genericType);
             } else {
-                ClassName rawType = ClassName.bestGuess(eraseGenericIfNecessary(superType).toString() + StateSaver.SUFFIX);
+                ClassName rawType = ClassName.bestGuess(eraseGenericIfNecessary(superType).toString() + STATE_SAVER_SUFFIX);
                 if (!rawType.toString().equals(rawType.reflectionName())) {
                     rawType = ClassName.bestGuess(rawType.reflectionName());
                 }
@@ -285,20 +291,23 @@ public class StateProcessor extends AbstractProcessor {
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(genericType, "target");
 
+            TypeName bundleTypeName = getTypeName(BUNDLE_CLASS_NAME);
             if (isView) {
-                saveMethodBuilder = saveMethodBuilder.returns(Parcelable.class).addParameter(Parcelable.class, "p");
-                restoreMethodBuilder = restoreMethodBuilder.returns(Parcelable.class).addParameter(Parcelable.class, "p");
+                TypeName parcelableTypeName = getTypeName(PARCELABLE_CLASS_NAME);
+
+                saveMethodBuilder = saveMethodBuilder.returns(parcelableTypeName).addParameter(parcelableTypeName, "p");
+                restoreMethodBuilder = restoreMethodBuilder.returns(parcelableTypeName).addParameter(parcelableTypeName, "p");
 
                 if (superType != null) {
-                    saveMethodBuilder = saveMethodBuilder.addStatement("$T state = HELPER.putParent(super.save(target, p))", Bundle.class);
+                    saveMethodBuilder = saveMethodBuilder.addStatement("$T state = HELPER.putParent(super.save(target, p))", bundleTypeName);
                 } else {
-                    saveMethodBuilder = saveMethodBuilder.addStatement("$T state = HELPER.putParent(p)", Bundle.class);
+                    saveMethodBuilder = saveMethodBuilder.addStatement("$T state = HELPER.putParent(p)", bundleTypeName);
                 }
-                restoreMethodBuilder = restoreMethodBuilder.addStatement("$T state = ($T) p", Bundle.class, Bundle.class);
+                restoreMethodBuilder = restoreMethodBuilder.addStatement("$T state = ($T) p", bundleTypeName, bundleTypeName);
 
             } else {
-                saveMethodBuilder = saveMethodBuilder.returns(void.class).addParameter(Bundle.class, "state");
-                restoreMethodBuilder = restoreMethodBuilder.returns(void.class).addParameter(Bundle.class, "state");
+                saveMethodBuilder = saveMethodBuilder.returns(void.class).addParameter(bundleTypeName, "state");
+                restoreMethodBuilder = restoreMethodBuilder.returns(void.class).addParameter(bundleTypeName, "state");
 
                 if (superType != null) {
                     saveMethodBuilder = saveMethodBuilder.addStatement("super.save(target, state)");
@@ -385,7 +394,7 @@ public class StateProcessor extends AbstractProcessor {
                         InsertedTypeResult insertedType = getInsertedType(field, true);
                         if (compatibilityType != null && insertedType != null) {
                             // either serializable or parcelable, this could be a private inner class, so don't use the concrete type
-                            fieldTypeString = compatibilityType.mClass.getName();
+                            fieldTypeString = compatibilityType.mClass;
                         }
 
                         saveMethodBuilder = saveMethodBuilder
@@ -436,10 +445,10 @@ public class StateProcessor extends AbstractProcessor {
                 }
             }
 
-            TypeName bundlerType = ParameterizedTypeName.get(ClassName.get(Bundler.class), WildcardTypeName.subtypeOf(Object.class));
+            TypeName bundlerType = ParameterizedTypeName.get(ClassName.bestGuess(BUNDLER_CLASS_NAME), WildcardTypeName.subtypeOf(Object.class));
             TypeName bundlerMap = ParameterizedTypeName.get(ClassName.get(HashMap.class), ClassName.get(String.class), bundlerType);
 
-            TypeSpec classBuilder = TypeSpec.classBuilder(className + StateSaver.SUFFIX)
+            TypeSpec classBuilder = TypeSpec.classBuilder(className + STATE_SAVER_SUFFIX)
                     .addModifiers(Modifier.PUBLIC)
                     .superclass(superTypeName)
                     .addTypeVariable(genericType)
@@ -451,9 +460,9 @@ public class StateProcessor extends AbstractProcessor {
                     )
                     .addStaticBlock(staticInitBlock.build())
                     .addField(
-                            FieldSpec.builder(InjectionHelper.class, "HELPER")
+                            FieldSpec.builder(getTypeName(INJECTION_HELPER_CLASS_NAME), "HELPER")
                                     .addModifiers(Modifier.FINAL, Modifier.STATIC, Modifier.PRIVATE)
-                                    .initializer("new $T($S, $N)", InjectionHelper.class, packageName + '.' + className + StateSaver.SUFFIX, "BUNDLERS")
+                                    .initializer("new $T($S, $N)", getTypeName(INJECTION_HELPER_CLASS_NAME), packageName + '.' + className + STATE_SAVER_SUFFIX, "BUNDLERS")
                                     .build()
                     )
                     .addMethod(saveMethodBuilder.build())
@@ -728,7 +737,7 @@ public class StateProcessor extends AbstractProcessor {
                         // gets the generic type Data from `class MyBundler implements Bundler<Data> {}`
                         List<? extends TypeMirror> interfaces = mElementUtils.getTypeElement(value.toString()).getInterfaces();
                         for (TypeMirror anInterface : interfaces) {
-                            if (isAssignable(mTypeUtils.erasure(anInterface), Bundler.class)) {
+                            if (isAssignable(mTypeUtils.erasure(anInterface), BUNDLER_CLASS_NAME)) {
                                 List<? extends TypeMirror> typeArguments = ((DeclaredType) anInterface).getTypeArguments();
                                 if (typeArguments != null && typeArguments.size() >= 1) {
                                     TypeMirror genericTypeMirror = typeArguments.get(0);
@@ -800,17 +809,17 @@ public class StateProcessor extends AbstractProcessor {
 
     @SuppressWarnings("unused")
     private enum CompatibilityType {
-        PARCELABLE("Parcelable", Parcelable.class, null),
-        PARCELABLE_ARRAY("ParcelableArray", Parcelable[].class, null),
-        PARCELABLE_LIST("ParcelableArrayList", ArrayList.class, Parcelable.class),
-        SPARSE_PARCELABLE_ARRAY("SparseParcelableArray", SparseArray.class, Parcelable.class),
-        SERIALIZABLE("Serializable", Serializable.class, null);
+        PARCELABLE("Parcelable", PARCELABLE_CLASS_NAME, null),
+        PARCELABLE_ARRAY("ParcelableArray", PARCELABLE_ARRAY_CLASS_NAME, null),
+        PARCELABLE_LIST("ParcelableArrayList", ARRAY_LIST_CLASS_NAME, PARCELABLE_CLASS_NAME),
+        SPARSE_PARCELABLE_ARRAY("SparseParcelableArray", SPARSE_ARRAY_CLASS_NAME, PARCELABLE_CLASS_NAME),
+        SERIALIZABLE("Serializable", SERIALIZABLE_CLASS_NAME, null);
 
         final String mMapping;
-        final Class<?> mClass;
-        final Class<?> mGenericClass;
+        final String mClass;
+        final String mGenericClass;
 
-        CompatibilityType(String mapping, Class<?> clazz, Class<?> genericClass) {
+        CompatibilityType(String mapping, String clazz, String genericClass) {
             mMapping = mapping;
             mClass = clazz;
             mGenericClass = genericClass;
@@ -822,7 +831,7 @@ public class StateProcessor extends AbstractProcessor {
         for (CompatibilityType compatibilityType : CompatibilityType.values()) {
             if (compatibilityType == CompatibilityType.PARCELABLE_ARRAY) {
                 TypeMirror arrayType = getArrayType(field);
-                if (arrayType != null && isAssignable(arrayType, Parcelable.class)) {
+                if (arrayType != null && isAssignable(arrayType, PARCELABLE_CLASS_NAME)) {
                     return CompatibilityType.PARCELABLE_ARRAY;
                 }
 
@@ -853,12 +862,12 @@ public class StateProcessor extends AbstractProcessor {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private boolean isAssignable(Element element, Class<?> clazz) {
-        return isAssignable(element.asType(), clazz);
+    private boolean isAssignable(Element element, String className) {
+        return isAssignable(element.asType(), className);
     }
 
-    private boolean isAssignable(TypeMirror typeMirror, Class<?> clazz) {
-        return mTypeUtils.isAssignable(typeMirror, mElementUtils.getTypeElement(clazz.getName()).asType());
+    private boolean isAssignable(TypeMirror typeMirror, String className) {
+        return mTypeUtils.isAssignable(typeMirror, mElementUtils.getTypeElement(className).asType());
     }
 
     private static List<? extends Element> sorted(Collection<? extends Element> collection) {
@@ -976,6 +985,10 @@ public class StateProcessor extends AbstractProcessor {
     private boolean isStateAnnotation(AnnotationMirror annotationMirror) {
         String string = annotationMirror.getAnnotationType().toString();
         return STATE_CLASS_NAME.equals(string) || STATE_REFLECTION_CLASS_NAME.equals(string);
+    }
+
+    private TypeName getTypeName(String className) {
+        return TypeName.get(mElementUtils.getTypeElement(className).asType());
     }
 
     private static final class InsertedTypeResult {

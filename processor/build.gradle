@@ -7,15 +7,15 @@ targetCompatibility = JavaVersion.VERSION_1_7
 
 archivesBaseName = 'android-state-processor'
 
-compileJava.dependsOn ":library:bundleReleaseAar"
+test.dependsOn ":library:bundleReleaseAar"
 
 dependencies {
     implementation 'com.squareup:javapoet:1.11.1'
 
-    implementation 'com.google.auto.service:auto-service:1.0-rc4'
-    compileOnly 'com.google.android:android:4.1.1.4'
+    compileOnly 'com.google.auto.service:auto-service:1.0-rc4'
 
-    implementation files('../library/build/intermediates/packaged-classes/release/classes.jar')
+    testImplementation 'com.google.android:android:4.1.1.4'
+    testImplementation files('../library/build/intermediates/packaged-classes/release/classes.jar')
 
     testImplementation "junit:junit:$junitVersion"
     testImplementation 'com.google.testing.compile:compile-testing:0.15'
@@ -24,10 +24,6 @@ dependencies {
 
 jar {
     destinationDir = new File("$project.buildDir/outputs/jar/")
-
-    from ('../library/build/intermediates/classes/release') {
-        include 'com/evernote/android/**'
-    }
 }
 
 apply from: "$rootDir/gradle/gradle-push.gradle"

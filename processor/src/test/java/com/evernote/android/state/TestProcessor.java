@@ -40,7 +40,7 @@ public class TestProcessor {
     }
 
     private static String getName(String className, boolean addSuffix) {
-        return PACKAGE + className + (addSuffix ? StateSaver.SUFFIX : "");
+        return PACKAGE + className + (addSuffix ? StateProcessor.STATE_SAVER_SUFFIX : "");
     }
 
     @Test

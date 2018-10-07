@@ -1,3 +1,7 @@
+## 1.4.1 (2018-09-23)
+
+* Remove Android dependency from processor, this resolves problems with the Jetifier, see #56
+
 ## 1.4.0 (2018-09-23)
 
 * Migrated dependencies to AndroidX
