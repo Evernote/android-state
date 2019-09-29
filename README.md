@@ -1,4 +1,8 @@
-# Android-State
+# DEPRECATED
+
+This library is not maintained anymore.
+
+# ~~Android-State~~
 
 A utility library for Android to save objects in a `Bundle` without any boilerplate. It uses an annotation processor to wire up all dependencies.
 
